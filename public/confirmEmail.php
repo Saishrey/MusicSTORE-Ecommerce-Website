@@ -4,7 +4,6 @@
     
     $email = "";
     $error_stmnt = "";
-    $error_num = 0;
     $error = False;
 
     if($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -16,20 +15,7 @@
             $error_stmnt .= "Please enter a valid email address.";
             $error_stmnt .= "</p>";
             $error = True;
-            $error_num = 1;
         }
-
-        $password = $_POST['password'];
-        if((strlen($password) < 8 || strlen($password) > 16) && !$error) {
-            $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
-            $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
-            $error_stmnt .= "Password must be 8-16 characters.";
-            $error_stmnt .= "</p>";
-            $error = True;
-            $error_num = 2;
-        }
-        $password = esc($password);
-
         if(!$error) {
             //read from database
             $arr['email'] = $email;
@@ -42,26 +28,35 @@
                 $data = $stmnt->fetchAll(PDO::FETCH_OBJ);  //FETCH_ASSOC for array
 
                 if(is_array($data) && count($data) > 0) {
-                    $data = $data[0];
-                    $password_hash = $data->password;
-                    if(password_verify($password, $password_hash)) {
-                        $_SESSION['user_name'] = $data->user_name;
-                        $_SESSION['email'] = $data->email;
-                        $_SESSION['contact'] = $data->contact;
-                        $_SESSION['address'] = $data->address;
-                        header("Location: index.php");
+                    // $data = $data[0];
+                    $otp = rand(100000,999999);
+                    $_SESSION['otp'] = $otp;
+                    $_SESSION['email'] = $email;
+                    $_SESSION['new_password'] = True;
+                    $_SESSION['deactivate_account'] = False;
+
+                    $string = "Password updation";
+                    $mail_status = sendOTP($email, $otp, $string);
+ 
+                    if(!$mail_status) {
+                        echo "<script>
+                            alert('Register Failed, Invalid Email');
+                            </script>";
+                    }
+                    else {
+                        header("Location: verification.php");
                         die;
                     }
                 }
             }
             $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
             $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
-            $error_stmnt .= "Invalid Email or Password.";
+            $error_stmnt .= "Invalid Email.";
             $error_stmnt .= "</p>";
+            $error = True;
         }
     }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -70,7 +65,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
         <!-- <link rel="stylesheet" href="authentication_style.css"> -->
-        <title>Sign in | MUSICSTORE</title>
+        <title>Confirm email | MusicSTORE</title>
     </head>
     <body>
         <!-- <style>
@@ -100,9 +95,9 @@
                 display: flex;
                 width: 500px;
                 border: none;
-                height: 650px;
+                height: 450px;
                 margin: auto;
-                margin-top: 150px;
+                margin-top: 250px;
                 /* box-shadow: 5px 5px 10px gray; */
                 border-radius: 6px;
             }
@@ -199,27 +194,13 @@
         <div id="box">
             <form method="post" class="form">
                 <h2>Music<span style="color:#1b9bff;">STORE</span>&trade;</h2>
+                <input type="email" name="email" class="form-control" placeholder="Email" value="<?=$email?>" required="required">
                 <?php
-                        if(isset($error_stmnt) && $error_num == 0 && $error_stmnt != "") {
+                        if(isset($error_stmnt) && $error && $error_stmnt != "") {
                             echo $error_stmnt;
                         }
                 ?>
-                <input type="email" name="email" class="form-control" placeholder="Email"  value="<?=$email?>" required="required">
-                <?php
-                        if(isset($error_stmnt) && $error_num == 1 && $error_stmnt != "") {
-                            echo $error_stmnt;
-                        }
-                ?>
-                <input type="password" name="password" class="form-control" placeholder="Password" required="required">
-                <?php
-                        if(isset($error_stmnt) && $error_num == 2 && $error_stmnt != "") {
-                            echo $error_stmnt;
-                        }
-                ?>
-                <input type="submit" class="submit-btn" value="Sign in">
-                <a href="confirmEmail.php" class="forgot-pass">Forgot password?</a>
-                <hr>
-                <a href="signup.php" class="sign-up">Create new account</a>
+                <input type="submit" class="submit-btn" value="Send OTP">
             </form>
         </div>
     </body>

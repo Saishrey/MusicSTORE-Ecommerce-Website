@@ -47,8 +47,8 @@
     function esc($word) {
         return addslashes($word);
     }
-
-    function sendOTP($email, $otp) {     
+    
+    function sendOTP($email, $otp, $string) {     
 
         require "Mail/phpmailer/PHPMailerAutoload.php";
         $mail = new PHPMailer;
@@ -68,7 +68,7 @@
         $mail->isHTML(true);
         $mail->Subject="Your verify code";
 
-        $mail->Body = "<p>Your One Time Password for MUSICSTORE Registration is:</p>
+        $mail->Body = "<p>Your One Time Password for ".$string." is:</p>
                          <br/><br/><h2>$otp</h2>";
 
         return $mail->send();

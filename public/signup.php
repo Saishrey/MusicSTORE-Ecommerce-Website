@@ -48,7 +48,7 @@
                 if(is_array($data) && count($data) > 0) {
                     $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
                     $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
-                    $error_stmnt .= "An account with Email <span style='color:green; font-weight:bold'>$email</span> <br />already exists.";
+                    $error_stmnt .= "An account with Email <span style='color:greenyellow; font-weight:bold'>$email</span> <br />already exists.";
                     $error_stmnt .= "</p>";
                     $error = True;
                     $error_num = 2;
@@ -84,9 +84,19 @@
             $otp = rand(100000,999999);
 
             // send OTP
+            $password_hash = password_hash($password, PASSWORD_BCRYPT);
             $_SESSION['otp'] = $otp;
+            $_SESSION['user_id'] = get_random_string(20);
+            $_SESSION['user_name'] = $user_name;
             $_SESSION['email'] = $email;
-            $mail_status = sendOTP($email, $otp);
+            $_SESSION['password'] = $password_hash;
+            $_SESSION['new_password'] = False;
+            $_SESSION['deactivate_account'] = False;
+
+
+            $string = "MUSICSTORE Registration";
+
+            $mail_status = sendOTP($email, $otp, $string);
  
             if(!$mail_status) {
                 echo "<script>
@@ -95,21 +105,21 @@
             }
             else {
                 //save to database
-                
-                $password_hash = password_hash($password, PASSWORD_BCRYPT);
 
-                $arr['user_id'] = get_random_string(20);
-                $arr['user_name'] = $user_name;
-                $arr['email'] = $email;
-                $arr['password'] = $password_hash;
-                $query = "insert into customer (user_id, user_name, email, password) values (:user_id,:user_name,:email,:password)";
-                $stmnt = $con->prepare($query);
-                $stmnt->execute($arr);
+                // $arr['user_id'] = get_random_string(20);
+                // $arr['user_name'] = $user_name;
+                // $arr['email'] = $email;
+                // $arr['password'] = $password_hash;
+                // $query = "insert into customer (user_id, user_name, email, password) values (:user_id,:user_name,:email,:password)";
+                // $stmnt = $con->prepare($query);
+                // $stmnt->execute($arr);
 
-                echo "<script>
-                      alert('Registered Successfully, OTP sent to $email for email verification.');
-                      window.location.replace('verification.php');
-                      </script>";
+                // echo "<script>
+                //       alert('Registered Successfully, OTP sent to $email for email verification.');
+                //       window.location.replace('verification.php');
+                //       </script>";\
+                header("Location: verification.php");
+                die;
             }
             //     // $query = "insert into customer (user_id, user_name, email, password) values ('$user_id','$user_name','$email','$password')";
             //     // mysqli_query($con, $query);
@@ -121,8 +131,7 @@
 
             // }
             
-            // header("Location: login.php");
-            // die;
+            
         }
         
     }
@@ -158,7 +167,7 @@
                 display: flex;
                 width: 500px;
                 border: none;
-                height: 700px;
+                height: 750px;
                 margin: auto;
                 margin-top: 100px;
                 /* box-shadow: 5px 5px 10px gray; */
@@ -172,7 +181,10 @@
                 align-items: center;
                 /* background-color: #A2DBFA; */
                 /* background-color: #373737; */
-                background: #181818;
+                /* background: #181818; */
+                background: rgba(24,24,24, 0.8);
+                /* background: rgba(255,255,255, 0.8); */
+
             }
             .form h2 {
                 font-size: 3rem;
@@ -241,7 +253,7 @@
                         echo $error_stmnt;
                     }
                 ?>
-                <input type="email" class="form-control" name="email" placeholder="Email" value="<?=$email?>" required="required">
+                <input type="email" class="form-control" name="email" placeholder="Email" value="<?=$email?>" maxlength="20" minlength="2" required="required">
                 <?php
                     if(isset($error_stmnt) && $error_num == 2 && $error_stmnt != "") {
                         echo $error_stmnt;
