@@ -25,7 +25,7 @@ CREATE TABLE `customer` (
   `email` varchar(100) NOT NULL,
   `is_verified` int(1) NOT NULL DEFAULT 0,
   `password` varchar(255) NOT NULL,
-  `date` timestamp CURRENT_TIMESTAMP(),
+  `date` timestamp DEFAULT CURRENT_TIMESTAMP(),
   `contact` varchar(10),
   `address` varchar(255)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
