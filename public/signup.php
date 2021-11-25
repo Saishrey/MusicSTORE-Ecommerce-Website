@@ -25,14 +25,17 @@
         
         // to check if email matches pattern
         $email = $_POST['email'];
-        if(!preg_match("/^[\w\-]+@[\w\-]+.[\w\-]+$/", $email)  && !$error) {
+        // if(!preg_match("/^[\w\-]+@[\w\-]+.[\w\-]+$/", $email)  && !$error) {
+        //     
+        // }
+        if (!$error && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
             $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
             $error_stmnt .= "Please enter a valid email address.";
             $error_stmnt .= "</p>";
             $error = True;
             $error_num = 2;
-        }
+        } 
 
         // to check if email already exists
         if(!$error) {
@@ -58,18 +61,25 @@
 
         // to check if password is within the specified limit
         $password = $_POST['password'];
-        if((strlen($password) < 8 || strlen($password) > 16) && !$error) {
-            $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
+
+        if(!$error && !preg_match('/^(?=.*\d)(?=.*[@#\-_$%^&+=§!\?])(?=.*[a-z])(?=.*[A-Z])[0-9A-Za-z@#\-_$%^&+=§!\?]{8,20}$/',$password)) {
+            $error_stmnt .= "<p style='color:#F78812; font-size:12px'>";
             $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
-            $error_stmnt .= "Password must be 8-16 characters.";
+            $error_stmnt .= "Password must be 8-16 characters.<br>
+                             Password should contain<br>
+                             at least one lowercase char<br>
+                             at least one uppercase char<br>
+                             at least one digit<br>
+                             at least one special sign of @#-_$%^&+=§!?";
             $error_stmnt .= "</p>";
             $error = True;
             $error_num = 3;
         }
         $password = esc($password);
-
+        
         // check if password matches
         $confirm_password = $_POST['confirm_password'];
+        
         if((strcmp($password, $confirm_password)) && !$error) {
             $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
             $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
@@ -78,7 +88,7 @@
             $error = True;
             $error_num = 4;
         }
-
+        $confirm_password = esc($confirm_password);
         if(!$error) {
             // genrate OTP
             $otp = rand(100000,999999);
@@ -99,6 +109,7 @@
             $mail_status = sendOTP($email, $otp, $string);
  
             if(!$mail_status) {
+                session_unset();
                 echo "<script>
                       alert('Register Failed, Invalid Email');
                       </script>";
@@ -167,7 +178,7 @@
                 display: flex;
                 width: 500px;
                 border: none;
-                height: 750px;
+                height: 800px;
                 margin: auto;
                 margin-top: 100px;
                 /* box-shadow: 5px 5px 10px gray; */
@@ -253,7 +264,7 @@
                         echo $error_stmnt;
                     }
                 ?>
-                <input type="email" class="form-control" name="email" placeholder="Email" value="<?=$email?>" maxlength="20" minlength="2" required="required">
+                <input type="email" class="form-control" name="email" placeholder="Email" value="<?=$email?>" required="required">
                 <?php
                     if(isset($error_stmnt) && $error_num == 2 && $error_stmnt != "") {
                         echo $error_stmnt;

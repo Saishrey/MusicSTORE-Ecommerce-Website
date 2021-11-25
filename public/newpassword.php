@@ -11,10 +11,15 @@
         //something was posted
         // to check if password is within the specified limit
         $password = $_POST['password'];
-        if((strlen($password) < 8 || strlen($password) > 16) && !$error) {
-            $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
+        if(!$error && !preg_match('/^(?=.*\d)(?=.*[@#\-_$%^&+=§!\?])(?=.*[a-z])(?=.*[A-Z])[0-9A-Za-z@#\-_$%^&+=§!\?]{8,16}$/',$password)) {
+            $error_stmnt .= "<p style='color:#F78812; font-size:12px'>";
             $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
-            $error_stmnt .= "Password must be 8-16 characters.";
+            $error_stmnt .= "Password must be 8-16 characters.<br>
+                             Password should contain<br>
+                             at least one lowercase char<br>
+                             at least one uppercase char<br>
+                             at least one digit<br>
+                             at least one special sign of @#-_$%^&+=§!?";
             $error_stmnt .= "</p>";
             $error = True;
             $error_num = 1;
@@ -89,7 +94,7 @@
                 display: flex;
                 width: 500px;
                 border: none;
-                height: 500px;
+                height: 600px;
                 margin: auto;
                 margin-top: 250px;
                 /* box-shadow: 5px 5px 10px gray; */

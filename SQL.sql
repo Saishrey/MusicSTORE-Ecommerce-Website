@@ -27,7 +27,9 @@ CREATE TABLE `customer` (
   `password` varchar(255) NOT NULL,
   `date` timestamp DEFAULT CURRENT_TIMESTAMP(),
   `contact` varchar(10),
-  `address` varchar(255)
+  `address` varchar(255),
+  `pin_code` varchar(6),
+  `img_name` varchar(255) 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 COMMIT;
 

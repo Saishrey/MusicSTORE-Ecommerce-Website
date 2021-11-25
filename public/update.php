@@ -4,12 +4,13 @@
     $contact = "";
     $address = "";
     $user_name = "";
+    $pin_code = "";
 
     $error_stmnt = "";
     $error_num = 0;
     $error = False;
 
-    if($_SERVER["REQUEST_METHOD"] == "POST") {
+    if($_SERVER['REQUEST_METHOD'] == 'POST') {
         //something was posted
         // to check if username matches pattern
         $user_name = trim($_POST['user_name']);
@@ -19,6 +20,7 @@
             $error_stmnt .= "Usernames can only use letters, numbers, <br />spaces and underscore.";
             $error_stmnt .= "</p>";
             $error = True;
+            $error_num = 1;
         }
         $user_name = esc($user_name);
 
@@ -27,10 +29,10 @@
         if(strlen($contact) != 0 && strlen($contact) < 10 && !$error) {
             $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
             $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
-            $error_stmnt .= "Contact number should be 10 digit only.";
+            $error_stmnt .= "Contact number should be 10 digits.";
             $error_stmnt .= "</p>";
             $error = True;
-            $error_num = 1;
+            $error_num = 2;
         }
         
         // to check if address is <= 250
@@ -41,7 +43,18 @@
             $error_stmnt .= "Address length is 250 characters.";
             $error_stmnt .= "</p>";
             $error = True;
-            $error_num = 2;
+            $error_num = 3;
+        }
+
+        // to check if pincode is <= 6
+        $pin_code = $_POST['pin_code'];
+        if(strlen($pin_code) != 0 && strlen($pin_code) < 6 && !$error) {
+            $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
+            $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
+            $error_stmnt .= "PIN Code must be 6 digits.";
+            $error_stmnt .= "</p>";
+            $error = True;
+            $error_num = 4;
         }
 
         if(!$error) {
@@ -67,12 +80,20 @@
                 $_SESSION['address'] = $address;
             }
 
+            if(strlen($pin_code) == 0) {
+                $pin_code = $_SESSION['pin_code'];
+            }
+            else {
+                $_SESSION['pin_code'] = $pin_code;
+            }
+
             //save to database
             $arr['user_name'] = $user_name;
             $arr['email'] = $_SESSION['email'];
             $arr['contact'] = $contact;
             $arr['address'] = $address;
-            $query = "update customer set user_name=:user_name, contact=:contact, address=:address where email=:email";
+            $arr['pin_code'] = $pin_code;
+            $query = "update customer set user_name=:user_name, contact=:contact, address=:address, pin_code=:pin_code where email=:email";
             $stmnt = $con->prepare($query);
             $stmnt->execute($arr);
 
@@ -94,7 +115,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <script src="https://kit.fontawesome.com/a076d05399.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
-        <link rel="stylesheet" href="styling.css">
+        <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" /> -->
+        <!-- script  -->
+        <!-- <script src="https://code.jquery.com/jquery-3.5.1.js" type="text/javascript"></script> -->
+        <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" type="text/javascript"></script> -->
         <title> UserAccount | MusicSTORE</title>
     </head>
     <body>
@@ -244,7 +268,7 @@
             /* Update */
             main {
                 margin-top: 80px;
-                background: rgba(24,24,24, 0.8);
+                background: rgba(24,24,24, 0.9);
                 padding-bottom: 100px;
             }
             .form {
@@ -255,16 +279,17 @@
                 text-align: center;
                 /* align-items: center; */
                 margin: auto;
-                margin-top: 100px;
-                margin-bottom: 80px;
+                margin-top: 20px;
+                margin-bottom: 10px;
             }
-            .form h2 {
+            main h2 {
                 font-size: 3rem;
-                margin-bottom: 40px;
+                margin: 80px 0 20px 0;
                 /* color: black; */
                 color: white;
+                text-align: center;
             }
-            .form-control {
+            .input-data {
                 padding: 14px 16px;
                 font-size: 20px;
                 width: 80%;
@@ -274,10 +299,24 @@
                 border-radius: 6px;
                 /* background-color: #F1F3F4; */
                 background-color: #B8C1C6;
+                font-family: 'Montserrat', sans-serif;
             }
-            .form-control:focus {
+            .input-data:focus {
                 background-color: white;
                 box-shadow: 0 5px 10px rgba(21,34,58,.13);
+            }
+            .delete-form {
+                /* display: flex;
+                flex-direction: column; */
+                width: 40%;
+                min-width: 400px;
+                text-align: center;
+                /* align-items: center; */
+                margin: auto;
+                margin-bottom: 50px;
+            }
+            .delete-form .hidden {
+                display: none;
             }
             .submit-btn {
                 padding: 12px 30px;
@@ -299,6 +338,28 @@
                 /* background-color: #195aaf; */
                 background: #1b9bff;
                 border: 1px solid #1b9bff;
+                transition: 0.3s;
+            }
+            .delete-btn {
+                padding: 12px 30px;
+                width: 80%;
+                /* margin-top: 15px; */
+                /* background-color: #32AEF2; */
+                /* background: #181818; */
+                background: none;
+                color: white;
+                font-size: 20px;
+                font-family: 'Montserrat', sans-serif;
+                text-transform: uppercase;
+                border: 1px solid white;
+                outline: none;
+                border-radius: 6px;
+            }
+            .delete-btn:hover {
+                cursor: pointer;
+                /* background-color: #195aaf; */
+                background: red;
+                border: 1px solid red;
                 transition: 0.3s;
             }
             .form .forgot-pass {
@@ -428,6 +489,12 @@
                     width: 100%;
                 }
             }
+            .alert{
+                position: absolute;
+                z-index: 99999;
+                right: 1%;1
+                top:10%;
+            }
 
         </style>
             <header class="myheader" id="header">
@@ -438,35 +505,53 @@
                 <a class="logo" href="index.php">Music<span style="color:#1b9bff;">STORE</span>&trade;</a>
                 <ul class="nav-list">
                     <li><a class="active" href="index.php">Home</a></li>
-                    <li><a class="active" href="#">Categories</a></li>
-                    <li><a class="active" href="#">Orders</a></li>
-                    <li><a class="active" href="#">Cart</a></li>
-                    <li><a class="active" href="useraccount.php"><?=$_SESSION['user_name']?></a></li>
+                    <li><a class="active" href="useraccount.php"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</a></li>
                 </ul>                
         </header>
         <main id="top">
+            <h2>Update Info</h2>
+            <form action="../private/upload_image.php" method="post" enctype="multipart/form-data" class="form">
+                <label for="profile_pic"><span style="color: white;">Profile Picture</span></label>
+                <input type="file" id="profile_pic" class="input-data" name="imageFile">
+                <input type="submit" name="upload-image" class="submit-btn" value="Upload">
+            </form>
+            <?php
+                if($_SESSION['img_name'] != null) {
+            ?>
+            <form action="../private/delete_image.php" method="post" accept-charset="utf-8" class="delete-form">
+                <input class="hidden" type="text" name="delete">
+                <input type="submit" class="delete-btn" value="Delete Profile Picture">
+            </form>
+            <?php
+                }
+            ?>
             <form method="post" class="form">
-                <h2>Update Info</h2>
                 <p style='color:yellow; font-size:12px'>Fill only those fields which you want to update.</p>
-                <input type="text" class="form-control" name="user_name" placeholder="Username" value="<?=$_SESSION['user_name']?>" maxlength="20">
-                <?php
-                        if(isset($error_stmnt) && $error_num == 0 && $error_stmnt != "") {
-                            echo $error_stmnt;
-                        }
-                ?>
-                <input type="text" name="contact" class="form-control" placeholder="Contact" value="<?=$_SESSION['contact']?>" maxlength="10">
+                <input type="text" class="input-data" name="user_name" placeholder="Username" value="<?=$_SESSION['user_name']?>" maxlength="20" title="Username">
                 <?php
                         if(isset($error_stmnt) && $error_num == 1 && $error_stmnt != "") {
                             echo $error_stmnt;
                         }
                 ?>
-                <input type="text" name="address" class="form-control" placeholder="Address" value="<?=$_SESSION['address']?>" maxlength="250">
+                <input type="text" name="contact" class="input-data" placeholder="Contact" value="<?=$_SESSION['contact']?>" maxlength="10" title="Contact">
                 <?php
                         if(isset($error_stmnt) && $error_num == 2 && $error_stmnt != "") {
                             echo $error_stmnt;
                         }
                 ?>
-                <input type="submit" class="submit-btn" value="Update">
+                <input type="text" name="address" class="input-data" placeholder="Address" value="<?=$_SESSION['address']?>" maxlength="250" title="Address">
+                <?php
+                        if(isset($error_stmnt) && $error_num == 3 && $error_stmnt != "") {
+                            echo $error_stmnt;
+                        }
+                ?>
+                <input type="text" name="pin_code" class="input-data" placeholder="PIN Code" value="<?=$_SESSION['pin_code']?>" maxlength="6" title="Pin code">
+                <?php
+                        if(isset($error_stmnt) && $error_num == 4 && $error_stmnt != "") {
+                            echo $error_stmnt;
+                        }
+                ?>
+                <input type="submit" class="submit-btn" value="Update" name="update">
             </form>
         </main>
         <footer class="footer">
@@ -475,8 +560,18 @@
                     <div class="footer-col">
                         <p>Account</p>
                         <ul>
-                            <li><a href="signup.php">Customer</a></li>
-                            <li><a href="#">Seller</a></li>
+                            <?php
+                                if($user_name == "") {
+                            ?>
+                                <li><a href="signup.php">Customer</a></li>
+                            <?php
+                                } else {
+                            ?>
+                                <li><a href="useraccount.php">Customer</a></li>
+                            <?php
+                                }
+                            ?>
+                            <li><a href="sellerGreeting.php">Seller</a></li>
                             <li><a href="#">Agent</a></li>
                             <li><a href="#">Admin</a></li>
                         </ul>

@@ -47,7 +47,7 @@
     function esc($word) {
         return addslashes($word);
     }
-    
+
     function sendOTP($email, $otp, $string) {     
 
         require "Mail/phpmailer/PHPMailerAutoload.php";

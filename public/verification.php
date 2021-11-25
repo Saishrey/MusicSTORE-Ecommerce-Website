@@ -28,8 +28,7 @@
             $arr['user_name'] = $_SESSION['user_name'];
             $arr['email'] = $_SESSION['email'];
             $arr['password'] = $_SESSION['password'];
-            $arr['is_verified'] = 1;
-            $query = "insert into customer (user_id, user_name, email, password, is_verified) values (:user_id,:user_name,:email,:password,:is_verified)";
+            $query = "insert into customer (user_id, user_name, email, password) values (:user_id,:user_name,:email,:password)";
             $stmnt = $con->prepare($query);
             $stmnt->execute($arr);
 

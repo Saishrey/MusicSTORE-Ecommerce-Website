@@ -20,6 +20,7 @@
         }
 
         $password = $_POST['password'];
+        $password = esc($password);
         if((strlen($password) < 8 || strlen($password) > 16) && !$error) {
             $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
             $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
@@ -28,7 +29,6 @@
             $error = True;
             $error_num = 2;
         }
-        $password = esc($password);
 
         if(!$error) {
             //read from database
@@ -45,10 +45,13 @@
                     $data = $data[0];
                     $password_hash = $data->password;
                     if(password_verify($password, $password_hash)) {
+                        $_SESSION['user_id'] = $data->user_id;
                         $_SESSION['user_name'] = $data->user_name;
                         $_SESSION['email'] = $data->email;
                         $_SESSION['contact'] = $data->contact;
                         $_SESSION['address'] = $data->address;
+                        $_SESSION['pin_code'] = $data->pin_code;
+                        $_SESSION['img_name'] = $data->img_name;
                         header("Location: index.php");
                         die;
                     }

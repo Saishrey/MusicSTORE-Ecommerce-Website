@@ -23,8 +23,8 @@
                 box-sizing: border-box;
             }
             body {
-                background: url(images/large.jpg) no-repeat;
-                background-size: auto;
+                /* background: url(images/bg_img1.png) no-repeat;
+                background-size: cover; */
                 font-family: 'Montserrat', sans-serif;
                 min-height: 100vh;
                 display: flex;
@@ -39,6 +39,7 @@
                 width: 100%;
                 border-bottom: 1px solid #1b9bff;
                 position: fixed;
+                z-index: 3;
             }
             .logo {
                 color: white;
@@ -158,13 +159,29 @@
                 }
             }
             /* User account */
+            @keyframes topbar-anim {
+                from {
+                    background: url(images/large.jpg) no-repeat;
+                    background-size: cover;
+                }
+                to {
+                    background: url(images/bg_main.png) no-repeat;
+                    background-size: cover;
+                }
+            }
             main .topbar {
-                margin-top: 80px;
-                /* background: black; */
+                padding: 80px;
+                background: url(images/bg_main.png) no-repeat;
+                background-size: cover;
+                animation-name: topbar-anim;
+                animation-duration: 1s;
+                animation-timing-function: linear;
                 /* background: #2c3e50; */
                 /* background: rgba(24,24,24, 0.9); */
                 /* background: rgba(7, 38, 65, 0.8); */
-                background: linear-gradient(rgba(7, 38, 65, 0.8), rgba(24,24,24, 0.9));
+                /* background: linear-gradient(rgba(7, 38, 65, 0.8), rgba(24,24,24, 0.9)); */
+                /* background: linear-gradient(rgba(7, 38, 65), rgba(24,24,24)); */
+                /* clip-path: ellipse(75% 100% at 50% 0%); */
             }
             main .topbar > ul {
                 list-style: none;
@@ -174,14 +191,46 @@
                 align-items: center;
                 width: max-content;
             }
-            main .topbar > ul li img {
+            @keyframes img-anim {
+                from {
+                    width: 200px;
+                    height: 200px;
+                }
+                to {
+                    width: 300px;
+                    height: 300px;
+                }
+            }
+            .circular_image {
+                width: 300px;
+                height: 300px;
                 border-radius: 50%;
-                width: 250px;
-                height: 250px;
+                overflow: hidden;
+                display: inline-block;
+                position: relative;
+                border: 6px solid #3EDBF0;
+                animation-name: img-anim;
+                animation-duration: 300ms;
+                animation-timing-function: ease-out;
+                /* box-shadow: 0 0 20px 7px #3EDBF0; */
+            }
+            .circular_image:hover {
+                bottom: 5px;
+                cursor: pointer;
+            }
+            main .topbar .circular_image img{
+                /* clip-path: circle(); */
+                width: 100%;
+                height: 100%;
+            }
+            /* main .topbar > ul li img {
+                border-radius: 50%;
+                width: 40%;
+                height: 40%;
             }
             main .topbar > ul li img:hover {
                 cursor: pointer;
-            }
+            } */
             main .topbar > ul li h1 {
                 font-size: 40px;
             }
@@ -193,30 +242,52 @@
             main .topbar > ul li a:hover {
                 color: #1b9bff;
             }
+
             main .main-body {
-                /* background-color: #373737; */
-                background: linear-gradient(rgba(24,24,24, 0.9), rgb(24,24,24));
-                padding-bottom: 80px;
+                /* background: url(images/bg_img1.png) no-repeat;
+                background-size: cover; */
+                background: linear-gradient(whitesmoke, #E6E6E6);
+                /* padding-bottom: 80px; */
+            }
+            @keyframes data-anim {
+                0% {transform: rotateY(90deg);}
+                25% {transform: rotateY(60deg);}
+                50% {transform: rotateY(45deg);}
+                75% {transform: rotateY(30deg);}
+                100% {transform: none;}
             }
             .data {
                 display: flex;
                 flex-direction: column;
                 margin: auto;
                 border-radius: 6px;
+                position: relative;
+                bottom: 80px;
                 /* width: 100%; */
                 max-width: 1000px;
+                background: white;
+                z-index: 2;
+                box-shadow: 0 7px 20px rgba(50, 50, 93, .2);
                 align-items: center;
                 /* background-color: #A2DBFA; */
+                padding: 80px 0 80px 0;
+                animation-name: data-anim;
+                animation-duration: 400ms;
+                animation-timing-function: linear;
                 /* background-color: #373737; */
                 /* padding-bottom: 80px; */
                 /* background: #181818; */
                 /* background: rgba(24,24,24, 0.8); */
             }
+            .data:hover {
+                box-shadow: 0 10px 30px rgba(50, 50, 93, .2);
+                transition: 500ms;
+            }
             .data h2 {
                 font-size: 3rem;
-                margin: 80px 0 40px 0;
+                margin-bottom: 40px;
                 /* color: black; */
-                color: white;
+                color: rgb(50,50,93);
             }
             .item{
                 padding: 20px;
@@ -225,7 +296,7 @@
                 /* margin: 15px; */
                 border: none;
                 outline: none;                
-                color: white;
+                color: rgb(96,108,138);
                 /* background-color: #F1F3F4; */
                 /* background-color: #B8C1C6; */
             }
@@ -236,10 +307,10 @@
                 width: 60%;
                 /* margin: 15px; */
                 border: none;
-                border-bottom: 1px solid white;
+                border-bottom: 2px solid grey;
                 outline: none;
                 float: right;
-                color: white;
+                color: black;
                 /* background-color: #F1F3F4; */
                 /* background-color: #B8C1C6; */
                 /* background-color: #373737; */
@@ -248,7 +319,7 @@
             .data .update {
                 text-decoration: none;
                 /* color: #4A616B; */
-                color: #B8C1C6;
+                color: grey;
                 margin-top: 20px;
                 font-size: 14px;
             }
@@ -267,12 +338,12 @@
                 /* background-color: #32AEF2; */
                 /* background: #181818; */
                 background: none;
-                color: white;
+                color: rgb(50,50,93);
                 font-size: 20px;
                 font-family: 'Montserrat', sans-serif;
                 text-transform: uppercase;
                 text-align: center;
-                border: 1px solid white;
+                border: 1px solid rgb(50,50,93);
                 outline: none;
                 border-radius: 6px;
             }
@@ -280,6 +351,7 @@
                 cursor: pointer;
                 /* background-color: #195aaf; */
                 background: red;
+                color:white;
                 border: 1px solid red;
                 transition: 0.3s;
             }
@@ -334,7 +406,7 @@
             .footer-col ul li a{
                 font-size: 13px;
                 text-transform: capitalize;
-                color: #ffffff;
+                /* color: #ffffff; */
                 text-decoration: none;
                 font-weight: 300;
                 padding: 0;
@@ -385,7 +457,6 @@
                 <a class="logo" href="index.php">Music<span style="color:#1b9bff;">STORE</span>&trade;</a>
                 <ul class="nav-list">
                     <li><a class="active" href="index.php">Home</a></li>
-                    <li><a class="active" href="#">Categories</a></li>
                     <li><a class="active" href="#">Orders</a></li>
                     <li><a class="active" href="#">Cart</a></li>
                     <li><a class="active" href="useraccount.php"><?=$_SESSION['user_name']?></a></li>
@@ -395,7 +466,21 @@
                 <div class="user-info">
                     <div class="topbar">
                         <ul>
-                            <li><img src="images/user-profile-img.png" alt="DP" class="rounded-circle" width="150"></li>
+                            <li>
+                                <div class="circular_image">
+                                    <?php
+                                        if($_SESSION['img_name'] != null) {
+                                    ?>
+                                    <img src="../private/uploads/<?=$_SESSION['img_name']?>" alt="DP">
+                                    <?php
+                                        } else {
+                                    ?>
+                                    <img src="images/user-profile-img.png" alt="DP">
+                                    <?php
+                                        }
+                                    ?>
+                                </div>
+                            </li>
                             <li><h1><?=$_SESSION['user_name']?></h1></li>
                             <li><h4><?=$_SESSION['email']?></h4></li>
                             <li>
@@ -415,36 +500,50 @@
                             <h2>Account Info</h2>
                             <div class="item">
                                 <label for="username">Username:</label>
-                                <p class="form-control"><?=$_SESSION['user_name']?></p>
+                                <p class="form-control" id="username"><?=$_SESSION['user_name']?></p>
                             </div>
                             <div class="item">
                                 <label for="email">Email:</label>
-                                <p class="form-control"><?=$_SESSION['email']?></p>
+                                <p class="form-control" id="username"><?=$_SESSION['email']?></p>
                             </div>
                             <div class="item">
                                 <label for="contact">Contact:</label>
                                 <?php
                                     if($_SESSION['contact'] != null) {
                                 ?>
-                                <p class="form-control"><?=$_SESSION['contact']?></p>
+                                <p class="form-control" id="contact"><?=$_SESSION['contact']?></p>
                                 <?php
                                      } else {
                                 ?>
-                                <p class="form-control"><span style="color: #505155; font-size: 16px;">-</span></p>
+                                <p class="form-control" id="contact"><span style="color: #505155; font-size: 16px;">-</span></p>
                                 <?php
                                      }
                                 ?>
                             </div>
                             <div class="item">
-                                <label for="email">Address:</label>
+                                <label for="address">Address:</label>
                                 <?php
                                     if($_SESSION['address'] != null) {
                                 ?>
-                                <p class="form-control"><?=$_SESSION['address']?></p>
+                                <p class="form-control" id="address"><?=$_SESSION['address']?></p>
                                 <?php
                                      } else {
                                 ?>
-                                <p class="form-control"><span style="color: #505155; font-size: 16px;">-</span></p>
+                                <p class="form-control" id="address"><span style="color: #505155; font-size: 16px;">-</span></p>
+                                <?php
+                                     }
+                                ?>
+                            </div>
+                            <div class="item">
+                                <label for="pincode">PIN Code:</label>
+                                <?php
+                                    if($_SESSION['pin_code'] != null) {
+                                ?>
+                                <p class="form-control" id="pincode"><?=$_SESSION['pin_code']?></p>
+                                <?php
+                                     } else {
+                                ?>
+                                <p class="form-control" id="pincode"><span style="color: #505155; font-size: 16px;">-</span></p>
                                 <?php
                                      }
                                 ?>
@@ -462,8 +561,8 @@
                     <div class="footer-col">
                         <p>Account</p>
                         <ul>
-                            <li><a href="signup.php">Customer</a></li>
-                            <li><a href="#">Seller</a></li>
+                            <li><a href="useraccount.php">Customer</a></li>
+                            <li><a href="sellerGreeting.php">Seller</a></li>
                             <li><a href="#">Agent</a></li>
                             <li><a href="#">Admin</a></li>
                         </ul>
