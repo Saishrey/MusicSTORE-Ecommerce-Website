@@ -207,15 +207,21 @@
                 border-radius: 50%;
                 overflow: hidden;
                 display: inline-block;
-                position: relative;
                 border: 6px solid #3EDBF0;
                 animation-name: img-anim;
                 animation-duration: 300ms;
                 animation-timing-function: ease-out;
-                /* box-shadow: 0 0 20px 7px #3EDBF0; */
+            }
+            .circular_image a {
+                margin:0;
+                padding:0;
+                border: none;
+                outline: none;
             }
             .circular_image:hover {
-                bottom: 5px;
+                /* border: 6px solid #3EDBF0; */
+                box-shadow: 0 0 20px 7px #3EDBF0;
+                transition: 300ms linear;
                 cursor: pointer;
             }
             main .topbar .circular_image img{
@@ -300,6 +306,23 @@
                 /* background-color: #F1F3F4; */
                 /* background-color: #B8C1C6; */
             }
+            .item .fix-email {
+                padding: 5px 2px;
+                font-size: 18px;
+                max-width: 1000px;
+                width: 60%;
+                /* margin: 15px; */
+                border: none;
+                /* border-bottom: 2px solid grey; */
+                font-family: 'Montserrat', sans-serif;
+                outline: none;
+                float: right;
+                color: grey;
+                /* background-color: #F1F3F4; */
+                /* background-color: #B8C1C6; */
+                /* background-color: #373737; */
+                background: none;
+            }
             .form-control {
                 padding: 5px 2px;
                 font-size: 18px;
@@ -308,6 +331,7 @@
                 /* margin: 15px; */
                 border: none;
                 border-bottom: 2px solid grey;
+                font-family: 'Montserrat', sans-serif;
                 outline: none;
                 float: right;
                 color: black;
@@ -353,6 +377,29 @@
                 background: red;
                 color:white;
                 border: 1px solid red;
+                transition: 0.3s;
+            }
+            .submit-btn {
+                padding: 12px 30px;
+                width: 40%;
+                margin-top: 15px;
+                /* background-color: #32AEF2; */
+                /* background: #181818; */
+                background: none;
+                color: rgb(50,50,93);
+                font-size: 20px;
+                font-family: 'Montserrat', sans-serif;
+                text-transform: uppercase;
+                border: 1px solid rgb(50,50,93);
+                outline: none;
+                border-radius: 6px;
+            }
+            .submit-btn:hover {
+                cursor: pointer;
+                color: white;
+                /* background-color: #195aaf; */
+                background: #1b9bff;
+                border: 1px solid #1b9bff;
                 transition: 0.3s;
             }
 
@@ -471,11 +518,11 @@
                                     <?php
                                         if($_SESSION['img_name'] != null) {
                                     ?>
-                                    <img src="../private/uploads/<?=$_SESSION['img_name']?>" alt="DP">
+                                    <a href="update.php" title="Click to change dp"><img src="../private/uploads/<?=$_SESSION['img_name']?>" alt="DP"></a>
                                     <?php
                                         } else {
                                     ?>
-                                    <img src="images/user-profile-img.png" alt="DP">
+                                    <a href="update.php" title="Click to upload dp"><img src="images/user-profile-img.png" alt="DP"></a>
                                     <?php
                                         }
                                     ?>
@@ -496,62 +543,34 @@
                         </ul>
                     </div>
                     <div class="main-body">
-                        <div class="data">
+                        <form class="data" method="post" action="update.php">
                             <h2>Account Info</h2>
-                            <div class="item">
-                                <label for="username">Username:</label>
-                                <p class="form-control" id="username"><?=$_SESSION['user_name']?></p>
-                            </div>
+                            <p style='color:blue; font-size:14px'>Fill only those fields which you want to update.</p>
                             <div class="item">
                                 <label for="email">Email:</label>
-                                <p class="form-control" id="username"><?=$_SESSION['email']?></p>
+                                <p class="fix-email" id="email" title="Cannot edit email"><?=$_SESSION['email']?></p>
+                            </div>
+                            <div class="item">
+                                <label for="username">Username:</label>
+                                <input type="text" class="form-control" id="username" name="user_name" placeholder="Username" value="<?=$_SESSION['user_name']?>" maxlength="20" title="Username">
                             </div>
                             <div class="item">
                                 <label for="contact">Contact:</label>
-                                <?php
-                                    if($_SESSION['contact'] != null) {
-                                ?>
-                                <p class="form-control" id="contact"><?=$_SESSION['contact']?></p>
-                                <?php
-                                     } else {
-                                ?>
-                                <p class="form-control" id="contact"><span style="color: #505155; font-size: 16px;">-</span></p>
-                                <?php
-                                     }
-                                ?>
+                                <input type="text" name="contact" id="contact" class="form-control" placeholder="Contact" value="<?=$_SESSION['contact']?>" maxlength="10" title="Contact">
                             </div>
                             <div class="item">
-                                <label for="address">Address:</label>
-                                <?php
-                                    if($_SESSION['address'] != null) {
-                                ?>
-                                <p class="form-control" id="address"><?=$_SESSION['address']?></p>
-                                <?php
-                                     } else {
-                                ?>
-                                <p class="form-control" id="address"><span style="color: #505155; font-size: 16px;">-</span></p>
-                                <?php
-                                     }
-                                ?>
+                                <label for="addres">Address:</label>
+                                <input type="text" name="address" id="address" class="form-control" placeholder="Address" value="<?=$_SESSION['address']?>" maxlength="250" title="Address">
                             </div>
                             <div class="item">
                                 <label for="pincode">PIN Code:</label>
-                                <?php
-                                    if($_SESSION['pin_code'] != null) {
-                                ?>
-                                <p class="form-control" id="pincode"><?=$_SESSION['pin_code']?></p>
-                                <?php
-                                     } else {
-                                ?>
-                                <p class="form-control" id="pincode"><span style="color: #505155; font-size: 16px;">-</span></p>
-                                <?php
-                                     }
-                                ?>
+                                <input type="text" name="pin_code" id="pincode" class="form-control" placeholder="PIN Code" value="<?=$_SESSION['pin_code']?>" maxlength="6" title="Pin code">
                             </div>
-                            <a href="update.php" class="update">Update</a>
+                            
+                            <input type="submit" class="submit-btn" value="Update" name="update">
                             <hr>
                             <a href="deactivate.php" class="deactivate">Deactivate Account</a>
-                        </div>
+                        </form>
                     </div>
                 </div>
         </main>

@@ -6,8 +6,6 @@
     $user_name = "";
     $pin_code = "";
 
-    $error_stmnt = "";
-    $error_num = 0;
     $error = False;
 
     if($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -15,46 +13,42 @@
         // to check if username matches pattern
         $user_name = trim($_POST['user_name']);
         if(strlen($user_name) != 0 && !preg_match("/^[a-zA-Z0-9 _]+$/", $user_name) && !$error) {
-            $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
-            $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
-            $error_stmnt .= "Usernames can only use letters, numbers, <br />spaces and underscore.";
-            $error_stmnt .= "</p>";
+            echo "<script>
+                  alert('Please refill the form. Usernames can only use letters, numbers, spaces and underscore.');
+                  window.location.replace('useraccount.php');
+                  </script>"; 
             $error = True;
-            $error_num = 1;
         }
         $user_name = esc($user_name);
 
         // to check if contact number is 10 digits
         $contact = $_POST['contact'];
         if(strlen($contact) != 0 && strlen($contact) < 10 && !$error) {
-            $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
-            $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
-            $error_stmnt .= "Contact number should be 10 digits.";
-            $error_stmnt .= "</p>";
+            echo "<script>
+                  alert('Please refill the form. Contact number should be 10 digits.');
+                  window.location.replace('useraccount.php');
+                  </script>"; 
             $error = True;
-            $error_num = 2;
         }
         
         // to check if address is <= 250
         $address = $_POST['address'];
         if(strlen($address) > 250 && !$error) {
-            $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
-            $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
-            $error_stmnt .= "Address length is 250 characters.";
-            $error_stmnt .= "</p>";
+            echo "<script>
+                  alert('Please refill the form. Address length is 250 characters.');
+                  window.location.replace('useraccount.php');
+                  </script>"; 
             $error = True;
-            $error_num = 3;
         }
 
         // to check if pincode is <= 6
         $pin_code = $_POST['pin_code'];
         if(strlen($pin_code) != 0 && strlen($pin_code) < 6 && !$error) {
-            $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
-            $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
-            $error_stmnt .= "PIN Code must be 6 digits.";
-            $error_stmnt .= "</p>";
+            echo "<script>
+                  alert('Please refill the form. Pincode must be 6 digits.');
+                  window.location.replace('useraccount.php');
+                  </script>"; 
             $error = True;
-            $error_num = 4;
         }
 
         if(!$error) {
@@ -269,6 +263,7 @@
             main {
                 margin-top: 80px;
                 background: rgba(24,24,24, 0.9);
+                height: 70vh;
                 padding-bottom: 100px;
             }
             .form {
@@ -509,10 +504,9 @@
                 </ul>                
         </header>
         <main id="top">
-            <h2>Update Info</h2>
+            <h2>Change Profile Picture</h2>
             <form action="../private/upload_image.php" method="post" enctype="multipart/form-data" class="form">
-                <label for="profile_pic"><span style="color: white;">Profile Picture</span></label>
-                <input type="file" id="profile_pic" class="input-data" name="imageFile">
+                <input type="file" id="profile_pic" class="input-data" name="imageFile" required="required">
                 <input type="submit" name="upload-image" class="submit-btn" value="Upload">
             </form>
             <?php
@@ -525,34 +519,6 @@
             <?php
                 }
             ?>
-            <form method="post" class="form">
-                <p style='color:yellow; font-size:12px'>Fill only those fields which you want to update.</p>
-                <input type="text" class="input-data" name="user_name" placeholder="Username" value="<?=$_SESSION['user_name']?>" maxlength="20" title="Username">
-                <?php
-                        if(isset($error_stmnt) && $error_num == 1 && $error_stmnt != "") {
-                            echo $error_stmnt;
-                        }
-                ?>
-                <input type="text" name="contact" class="input-data" placeholder="Contact" value="<?=$_SESSION['contact']?>" maxlength="10" title="Contact">
-                <?php
-                        if(isset($error_stmnt) && $error_num == 2 && $error_stmnt != "") {
-                            echo $error_stmnt;
-                        }
-                ?>
-                <input type="text" name="address" class="input-data" placeholder="Address" value="<?=$_SESSION['address']?>" maxlength="250" title="Address">
-                <?php
-                        if(isset($error_stmnt) && $error_num == 3 && $error_stmnt != "") {
-                            echo $error_stmnt;
-                        }
-                ?>
-                <input type="text" name="pin_code" class="input-data" placeholder="PIN Code" value="<?=$_SESSION['pin_code']?>" maxlength="6" title="Pin code">
-                <?php
-                        if(isset($error_stmnt) && $error_num == 4 && $error_stmnt != "") {
-                            echo $error_stmnt;
-                        }
-                ?>
-                <input type="submit" class="submit-btn" value="Update" name="update">
-            </form>
         </main>
         <footer class="footer">
             <div class="container">
