@@ -1,6 +1,60 @@
 <?php 
 
     require "../private/autoload.php";
+
+    $inst_name = "";
+    $category = "";
+
+    $error_stmnt = "";
+    $error = False;
+    $error_num = 0;
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST') {
+        //something was posted
+        // to check if model name matches pattern
+        $inst_name = trim($_POST['inst_name']);
+        if(strlen($inst_name) != 0 && !preg_match("/^[a-zA-Z0-9 -.,]+$/", $inst_name) && !$error) {
+            $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
+            $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
+            $error_stmnt .= "Model name can only use letters, spaces, numbers and - . , ";
+            $error_stmnt .= "</p>";
+            $error = True;
+        }
+        $inst_name = esc($inst_name);
+
+        $price_str = trim($_POST['inst_price']);
+        if(strlen($price_str) != 0 && !preg_match("/^[0-9]+$/", $price_str) && !$error) {
+            $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
+            $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
+            $error_stmnt .= "Price can only have digits.";
+            $error_stmnt .= "</p>";
+            $error_num = 1;
+            $error = True;
+        }
+        $price = intval($price_str);
+
+       $category = $_POST['category'];
+
+        if(!$error) {
+
+            //save to database
+            $arr['inst_name'] = $inst_name;
+            $arr['s_id'] = $_SESSION['seller_id'];
+            $arr['category'] = $category;
+            $arr['inst_id'] = "INST".get_random_string(20);
+            $arr['price'] = $price;
+            $query = "insert into instrument (inst_id,s_id,inst_name,price,category) values (:inst_id,:s_id,:inst_name,:price,:category);";
+            $stmnt = $con->prepare($query);
+            $stmnt->execute($arr);
+
+            echo "<script>
+                  alert('Instrument uploaded successfully.');
+                  window.location.replace('instruments.php');
+                  </script>";        
+            
+        }
+        
+    }
 ?>
 
 <!DOCTYPE html>
@@ -12,7 +66,7 @@
         <script src="https://kit.fontawesome.com/a076d05399.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
         <link rel="stylesheet" href="styling.css">
-        <title> UserAccount | MusicSTORE</title>
+        <title> SellerAccount | MusicSTORE</title>
     </head>
     <body>
         <style>
@@ -23,9 +77,9 @@
                 box-sizing: border-box;
             }
             body {
-                /* background: url(images/bg_img1.png) no-repeat;
-                background-size: cover; */
-                background: rgb(24,24,24);
+                /* background: url(images/selleraccount_bg.png) no-repeat; */
+                /* background-size: cover; */
+                background: whitesmoke;
                 font-family: 'Montserrat', sans-serif;
                 min-height: 100vh;
                 display: flex;
@@ -34,8 +88,8 @@
             header {
                 /* background: #0082e6; */
                 /* background: #181818; */
+                /* background: rgba(24,24,24, 0.9); */
                 background: rgba(24,24,24, 0.97);
-                /* background: rgb(24,24,24); */
                 height: 80px;
                 width: 100%;
                 border-bottom: 1px solid #1b9bff;
@@ -50,6 +104,9 @@
                 font-weight: bold;
                 text-decoration: none;
                 transition: font-size 0.2s;
+            }
+            .logo sub {
+                font-size: 16px;
             }
             .logo:hover {
                 font-size: 36px;
@@ -159,11 +216,8 @@
                     left: 0;
                 }
             }
-            /* User account */
-            main {
-                padding: 80px 0 0 0;
-            }
-            @keyframes topbar-anim {
+            /* Seller account */
+            /* @keyframes topbar-anim {
                 from {
                     background: url(images/large.jpg) no-repeat;
                     background-size: cover;
@@ -172,50 +226,106 @@
                     background: url(images/bg_main.png) no-repeat;
                     background-size: cover;
                 }
+            } */
+            main {
+                padding: 80px 0 80px 0;
+                /* background: url(images/user_account);
+                background-size: cover; */
             }
             main .topbar {
-                padding: 80px;
-                background: url(images/bg_main.png) no-repeat;
-                background-size: cover;
-                background-attachment: fixed;
-                animation-name: topbar-anim;
-                animation-duration: 1s;
-                animation-timing-function: linear;
-                /* background: #2c3e50; */
-                /* background: rgba(24,24,24, 0.9); */
-                /* background: rgba(7, 38, 65, 0.8); */
-                /* background: linear-gradient(rgba(7, 38, 65, 0.8), rgba(24,24,24, 0.9)); */
-                /* background: linear-gradient(rgba(7, 38, 65), rgba(24,24,24)); */
+                height: 500px;
+                min-width: 1260px;
+                /* padding: 80px; */
+                /* background: url(images/bg_main.png) no-repeat;
+                background-size: cover; */
+                /* background: rgb(5,29,54); */
+                /* background: linear-gradient(#5D1451, rgb(5,29,54)); */
                 /* clip-path: ellipse(75% 100% at 50% 0%); */
+                /* animation-name: topbar-anim;
+                animation-duration: 400ms;
+                animation-timing-function: linear; */
             }
-            main .topbar > ul {
+            main .topbar-bg {
+                padding: 80px;
+                height: 300px;
+                /* background: linear-gradient(#5D1451, rgb(5,29,54)); */
+                background: url(images/user_account.jpg);
+                background-size: cover;
+                background-color: rgb(5,29,54);
+            }
+            ul {
                 list-style: none;
-                margin: auto;
-                padding: 30px 0;
-                text-align: center;
-                align-items: center;
-                width: max-content;
             }
-            @keyframes img-anim {
+            main .topbar .topbar-container {
+                height: 200px;
+                display: flex;
+                flex-direction: row;
+                width: 100%;
+                border: 2px solid #1b9bff;
+                border-top: none;
+                border-radius: 0 0 20px 20px;
+                box-shadow: 0 7px 20px rgba(50, 50, 93, .2);
+                background: white;
+            }
+            .img-container {
+                width: 25%;
+                min-width: 470px;
+            }
+            .outer-ul {
+                padding: 20px 0 20px 0;
+                display: flex;
+                flex-direction: column;
+                /* flex-wrap: wrap; */
+                /* margin: auto; */
+                /* padding: 30px 0; */
+                /* text-align: center; */
+                width: 25%;
+                min-width: 470px;
+            }
+            .outer-ul li {
+                padding: 5px 0 5px 0;
+            }
+            @keyframes ul-anim {
                 from {
-                    width: 200px;
-                    height: 200px;
+                    left: 300px;
                 }
                 to {
-                    width: 300px;
-                    height: 300px;
+                    left: 0;
                 }
             }
+            .btn-container {
+                /* margin-top: 30px; */
+                width: 50%;
+            }
+            .sign-out {
+                text-align: right;
+                margin: 80px 100px 50px 0;
+                /* margin-left: auto; */
+                /* margin-right: 0; */
+            }
+            .sign-out a {
+                padding: 10px 30px;
+                background: rgb(5,29,54);
+                border-radius: 6px;
+                color: white;
+                text-decoration: none;
+                text-transform: uppercase;
+            }
+            .sign-out a:hover {
+                background: #1b9bff;
+                transition: 250ms;
+            }
             .circular_image {
+                margin-left: 100px;
+                margin-right: 20px;
                 width: 300px;
                 height: 300px;
                 border-radius: 50%;
                 overflow: hidden;
                 display: inline-block;
                 border: 6px solid #3EDBF0;
-                animation-name: img-anim;
-                animation-duration: 300ms;
-                animation-timing-function: ease-out;
+                position: relative;
+                bottom: 150px;
             }
             .circular_image a {
                 margin:0;
@@ -242,18 +352,6 @@
             main .topbar > ul li img:hover {
                 cursor: pointer;
             } */
-            main .topbar > ul li h1 {
-                font-size: 40px;
-            }
-            main .topbar > ul li, a {
-                padding: 10px;
-                color: white;
-                text-decoration: none;
-            }
-            main .topbar > ul li a:hover {
-                color: #1b9bff;
-            }
-            
             main .main-body {
                 /* background: linear-gradient(whitesmoke, #E6E6E6); */
                 padding: 80px 20px 0 20px;
@@ -261,46 +359,33 @@
                 flex-direction: column;
                 /* padding-bottom: 80px; */
             }
-            @keyframes data-anim {
-                0% {transform: rotateY(90deg);}
-                25% {transform: rotateY(60deg);}
-                50% {transform: rotateY(45deg);}
-                75% {transform: rotateY(30deg);}
-                100% {transform: none;}
-            }
             .data {
                 width: 70%;
-                background: rgb(48,49,52);
+                background: white;
                 min-width: 625px;
                 margin: auto;
-                position: relative;
-                bottom: 130px;
                 z-index: 2;
                 border-radius: 6px;
                 box-shadow: 0 7px 20px rgba(50, 50, 93, .2);
-                animation-name: data-anim;
-                animation-duration: 400ms;
-                animation-timing-function: linear;
+                padding-bottom: 80px;
             }
             .top-menu {
                 width: 100%;
                 border-radius: 6px 6px 0 0;
+                background: rgb(5,29,54);
                 padding: 20px 40px;
-                border-bottom: 1px solid #1b9bff;
             }
             .data .top-menu ul{
-                list-style: none;
                 display: flex;
-                width: 100%;
                 flex-direction: row;
+                flex-wrap: wrap;
+                width: 100%;
                 text-align: center;
             }
-            .top-menu .ul-div {
-                width: 60%;
-                margin: auto;
-            }
             .top-menu ul li {
-                width: 33%;
+                /* padding: 20px 30px; */
+                /* margin: 8px; */
+                width: 25%;
             }
             .top-menu ul li a {
                 text-decoration: none;
@@ -334,15 +419,11 @@
                 /* background: #181818; */
                 /* background: rgba(24,24,24, 0.8); */
             }
-            .data:hover {
-                box-shadow: 0 10px 30px rgba(50, 50, 93, .2);
-                transition: 500ms;
-            }
             .data form h2 {
                 font-size: 3rem;
                 margin-bottom: 40px;
                 /* color: black; */
-                color: white;
+                color: rgb(50,50,93);
             }
             .item{
                 padding: 20px;
@@ -351,7 +432,7 @@
                 /* margin: 15px; */
                 border: none;
                 outline: none;                
-                color: whitesmoke;
+                color: rgb(96,108,138);
                 /* background-color: #F1F3F4; */
                 /* background-color: #B8C1C6; */
             }
@@ -366,7 +447,6 @@
                 font-family: 'Montserrat', sans-serif;
                 outline: none;
                 float: right;
-                color: grey;
                 /* background-color: #F1F3F4; */
                 /* background-color: #B8C1C6; */
                 /* background-color: #373737; */
@@ -379,68 +459,32 @@
                 width: 60%;
                 /* margin: 15px; */
                 border: none;
-                border-bottom: 2px solid whitesmoke;
+                border-bottom: 2px solid grey;
                 font-family: 'Montserrat', sans-serif;
                 outline: none;
                 float: right;
-                color: white;
+                color: black;
                 /* background-color: #F1F3F4; */
                 /* background-color: #B8C1C6; */
                 /* background-color: #373737; */
                 background: none;
             }
-            .data form .update {
-                text-decoration: none;
-                /* color: #4A616B; */
-                color: grey;
-                margin-top: 20px;
-                font-size: 14px;
-            }
-            .data form .update:hover {
-                /* color: #1A73E8; */
-                color: #1b9bff;
-            }
-            hr {
+            form hr {
                 width: 80%;
                 margin: 30px;
             }
-            .deactivate {
-                text-decoration: none;
-                padding: 12px 30px;
-                width: 40%;
-                margin-top: 15px;
-                /* background-color: #32AEF2; */
-                /* background: #181818; */
-                background: none;
-                color: white;
-                font-size: 20px;
-                font-family: 'Montserrat', sans-serif;
-                text-transform: uppercase;
-                text-align: center;
-                border: 1px solid whitesmoke;
-                outline: none;
-                border-radius: 6px;
-            }
-            .deactivate:hover {
-                cursor: pointer;
-                /* background-color: #195aaf; */
-                background: red;
-                color:white;
-                border: 1px solid red;
-                transition: 0.3s;
-            }
             .submit-btn {
-                padding: 12px 30px;
+                padding: 10px 40px;
                 width: 40%;
                 margin-top: 15px;
                 /* background-color: #32AEF2; */
                 /* background: #181818; */
-                background: none;
+                background: #3DB026;
+                border: none;
                 color: white;
                 font-size: 20px;
                 font-family: 'Montserrat', sans-serif;
                 text-transform: uppercase;
-                border: 1px solid whitesmoke;
                 outline: none;
                 border-radius: 6px;
             }
@@ -448,10 +492,10 @@
                 cursor: pointer;
                 color: white;
                 /* background-color: #195aaf; */
-                background: #1b9bff;
-                border: 1px solid #1b9bff;
+                background: #369b22;
                 transition: 0.3s;
             }
+
 
 
             /* footer */
@@ -523,7 +567,7 @@
                 background-color: rgba(255,255,255,0.2);
                 margin:0 10px 10px 0;
                 text-align: center;
-                /* line-height: 40px; */
+                line-height: 40px;
                 border-radius: 50%;
                 color: #ffffff;
                 transition: all 0.5s ease;
@@ -552,93 +596,93 @@
                 <label for="check" class="checkbtn">
                     <i class="fa fa-bars"></i>
                 </label>
-                <a class="logo" href="index.php">Music<span style="color:#1b9bff;">STORE</span>&trade;</a>
+                <a class="logo" href="index.php">Music<span style="color:#1b9bff;">STORE</span>&trade;<sub> Seller</sub></a>
                 <ul class="nav-list">
                     <li><a class="active" href="index.php">Home</a></li>
-                    <li><a class="active" href="#">Orders</a></li>
-                    <li><a class="active" href="#">Cart</a></li>
-                    <li><a class="active" href="useraccount.php"><?=$_SESSION['user_name']?></a></li>
-                    <?php 
-                        if($_SESSION['is_seller'] == 1) {
-                    ?>
-                    <li><a class="active" href="selleraccount.php"><?=$_SESSION['company_name']?></a></li>
-                    <?php
-                        }
-                    ?>
+                    <li><a class="active" href="instruments.php"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</a></li>
                 </ul>                
         </header>
             <main id="top">
                 <div class="user-info">
                     <div class="topbar">
-                        <ul>
-                            <li>
+                        <div class="topbar-bg">
+                        </div>
+                        <div class="topbar-container">
+                            <div class="img-container">
                                 <div class="circular_image">
                                     <?php
-                                        if($_SESSION['img_name'] != null) {
+                                        if($_SESSION['seller_dp'] != null) {
                                     ?>
-                                    <a href="update.php" title="Click to change dp"><img src="../private/uploads/<?=$_SESSION['img_name']?>" alt="DP"></a>
+                                    <a href="updateseller.php" title="Click to change dp"><img src="../private/uploads/<?=$_SESSION['seller_dp']?>" alt="DP"></a>
                                     <?php
                                         } else {
                                     ?>
-                                    <a href="update.php" title="Click to upload dp"><img src="images/user-profile-img.png" alt="DP"></a>
+                                    <a href="updateseller.php" title="Click to upload dp"><img src="images/seller-dp.png" alt="DP"></a>
                                     <?php
                                         }
                                     ?>
                                 </div>
-                            </li>
-                            <li><h1><?=$_SESSION['user_name']?></h1></li>
-                            <li><h4><?=$_SESSION['email']?></h4></li>
-                            <li>
-                                <?php
-                                    if($_SESSION['contact'] != null) {
-                                ?>
-                                <h4><?=$_SESSION['contact']?></h4>
-                                <?php
-                                     }
-                                ?>
-                            </li>
-                            <li><h3><a href="logout.php">Sign out</a><h3></li>
-                        </ul>
+                            </div>
+                            <ul class="outer-ul">
+                                <li><h1><?=$_SESSION['company_name']?></h1></li>
+                                <li><h4><?=$_SESSION['email']?></h4></li>
+                                <li><h4><?=$_SESSION['seller_contact']?></h4></li>
+                            </ul>
+                            <div class="btn-container">
+                                <h3 class="sign-out" ><a href="logout.php">Sign out</a><h3>
+                            </div>
+                        </div>
                     </div>
                     <div class="main-body">
                         <div class="data">
                             <div class="top-menu">
                                 <div class="ul-div">
                                     <ul>
-                                        <li><a class="active" href="useraccount.php">My Account</a></li>
-                                        <li><a href="#">Orders</a></li>
-                                        <li><a href="#">Cart</a></li>
+                                        <li><a href="selleraccount.php">Account</a></li>
+                                        <li><a class="active" href="instruments.php">Instruments</a></li>
+                                        <li><a href="#">Sales</a></li>
+                                        <li><a href="#">Reviews</a></li>
                                     </ul>
                                 </div>
                             </div>
-                            <form method="post" action="updateseller.php">
-                                <h2>Account details</h2>
-                                <p style='color:#1bffbf; font-size:14px'>Fill only those fields which you want to update.</p>
-                                <div class="item">
-                                    <label for="email">Email:</label>
-                                    <p class="fix-email" style="color:#A2D2FF;" id="email" title="Cannot edit email"><?=$_SESSION['email']?></p>
-                                </div>
-                                <div class="item">
-                                    <label for="username">Username:</label>
-                                    <input type="text" class="form-control" id="username" name="user_name" placeholder="Username" value="<?=$_SESSION['user_name']?>" maxlength="20" title="Username">
-                                </div>
-                                <div class="item">
-                                    <label for="contact">Contact:</label>
-                                    <input type="text" name="contact" id="contact" class="form-control" placeholder="Contact" value="<?=$_SESSION['contact']?>" maxlength="10" title="Contact">
-                                </div>
-                                <div class="item">
-                                    <label for="addres">Address:</label>
-                                    <input type="text" name="address" id="address" class="form-control" placeholder="Address" value="<?=$_SESSION['address']?>" maxlength="250" title="Address">
-                                </div>
-                                <div class="item">
-                                    <label for="pincode">PIN Code:</label>
-                                    <input type="text" name="pin_code" id="pincode" class="form-control" placeholder="PIN Code" value="<?=$_SESSION['pin_code']?>" maxlength="6" title="Pin code">
-                                </div>
-                                
-                                <input type="submit" class="submit-btn" value="Update" name="update">
-                                <hr>
-                                <a href="#" class="deactivate">Deactivate Account</a>
-                            </form>
+                                <form action="" method="post">
+                                    <h2>Upload Instrument</h2>
+                                    <div class="item">
+                                        <label for="brand">Brand:</label>
+                                        <p class="fix-email" id="brand" title="Cannot edit brand"><?=$_SESSION['company_name']?></p>
+                                    </div>
+                                    <div class="item">
+                                        <label for="modelname">Model Name:</label>
+                                        <input type="text" class="form-control" id="modelname" name="inst_name" placeholder="Model Name" maxlength="250" required="required">
+                                        <?php
+                                            if(isset($error_stmnt) && $error_num == 0 && $error_stmnt != "") {
+                                                echo $error_stmnt;
+                                            }
+                                        ?>
+                                    </div>
+                                    <div class="item">
+                                        <label for="price">Price:</label>
+                                        <input type="text" class="form-control" id="price" name="inst_price" placeholder="Price" maxlength="8" minlength="2" required="required">
+                                        <?php
+                                            if(isset($error_stmnt) && $error_num == 1 && $error_stmnt != "") {
+                                                echo $error_stmnt;
+                                            }
+                                        ?>
+                                    </div>
+                                    <div class="item">
+                                        <label for="category">Category:</label>
+                                        <select name="category" id="category" class="form-control">
+                                            <option value="guitar">Guitar</option>
+                                            <option value="piano">Piano</option>
+                                            <option value="keyboard">Keyboard</option>
+                                            <option value="drums">Drums & Percussions</option>
+                                            <option value="wind">Wind instruments</option>
+                                        </select>
+                                    </div>
+                                    <hr>
+                                    <input type="submit" class="submit-btn" value="Upload" name="upload-inst">
+                                </form>
+
                         </div>
                     </div>
                 </div>

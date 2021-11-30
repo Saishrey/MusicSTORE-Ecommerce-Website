@@ -40,7 +40,7 @@
             header {
                 /* background: #0082e6; */
                 /* background: #181818; */
-                background: rgb(24,24,24);
+                background: rgba(24,24,24, 0.97);
                 position: fixed;
                 /* opacity: 0.7; */
                 height: 80px;
@@ -454,7 +454,7 @@
                 <?php
                     } else {
                 ?>
-                    <p class="closing">Would like to create a new account? <a href="signup.php">Click here</a></p>
+                    <p class="closing">Would like to create a new account? <a href="signup.php" target="_blank">Click here</a></p>
                 <?php
                     }
                 ?>

@@ -1,99 +1,99 @@
 <?php 
     require "../private/autoload.php";
 
-    $contact = "";
-    $address = "";
-    $user_name = "";
-    $pin_code = "";
+    $seller_contact = "";
+    $seller_address = "";
+    $company_name = "";
+    $seller_pin_code = "";
 
     $error = False;
 
     if($_SERVER['REQUEST_METHOD'] == 'POST') {
         //something was posted
         // to check if username matches pattern
-        $user_name = trim($_POST['user_name']);
-        if(strlen($user_name) != 0 && !preg_match("/^[a-zA-Z0-9 _]+$/", $user_name) && !$error) {
+        $company_name = trim($_POST['company_name']);
+        if(strlen($company_name) != 0 && !preg_match("/^[a-zA-Z .]+$/", $company_name) && !$error) {
             echo "<script>
-                  alert('Please refill the form. Usernames can only use letters, numbers, spaces and underscore.');
-                  window.location.replace('useraccount.php');
+                  alert('Please refill the form. Company name can only use letters, spaces and dots.');
+                  window.location.replace('selleraccount.php');
                   </script>"; 
             $error = True;
         }
-        $user_name = esc($user_name);
+        $company_name = esc($company_name);
 
         // to check if contact number is 10 digits
-        $contact = $_POST['contact'];
-        if(strlen($contact) != 0 && strlen($contact) < 10 && !$error) {
+        $seller_contact = $_POST['seller_contact'];
+        if(strlen($seller_contact) != 0 && strlen($seller_contact) < 10 && !$error) {
             echo "<script>
                   alert('Please refill the form. Contact number should be 10 digits.');
-                  window.location.replace('useraccount.php');
+                  window.location.replace('selleraccount.php');
                   </script>"; 
             $error = True;
         }
         
         // to check if address is <= 250
-        $address = $_POST['address'];
-        if(strlen($address) > 250 && !$error) {
+        $seller_address = $_POST['seller_address'];
+        if(strlen($seller_address) > 250 && !$error) {
             echo "<script>
                   alert('Please refill the form. Address length is 250 characters.');
-                  window.location.replace('useraccount.php');
+                  window.location.replace('selleraccount.php');
                   </script>"; 
             $error = True;
         }
 
         // to check if pincode is <= 6
-        $pin_code = $_POST['pin_code'];
-        if(strlen($pin_code) != 0 && strlen($pin_code) < 6 && !$error) {
+        $seller_pin_code = $_POST['seller_pin_code'];
+        if(strlen($seller_pin_code) != 0 && strlen($seller_pin_code) < 6 && !$error) {
             echo "<script>
                   alert('Please refill the form. Pincode must be 6 digits.');
-                  window.location.replace('useraccount.php');
+                  window.location.replace('selleraccount.php');
                   </script>"; 
             $error = True;
         }
 
         if(!$error) {
 
-            if(strlen($user_name) == 0) {
-                $user_name = $_SESSION['user_name'];
+            if(strlen($company_name) == 0) {
+                $company_name = $_SESSION['company_name'];
             }
             else {
-                $_SESSION['user_name'] = $user_name;
+                $_SESSION['company_name'] = $company_name;
             }
 
-            if(strlen($contact) == 0) {
-                $contact= $_SESSION['contact'];
+            if(strlen($seller_contact) == 0) {
+                $seller_contact= $_SESSION['seller_contact'];
             }
             else {
-                $_SESSION['contact'] = $contact;
+                $_SESSION['seller_contact'] = $seller_contact;
             }
 
-            if(strlen($address) == 0) {
-                $address = $_SESSION['address'];
+            if(strlen($seller_address) == 0) {
+                $seller_address = $_SESSION['seller_address'];
             }
             else {
-                $_SESSION['address'] = $address;
+                $_SESSION['seller_address'] = $seller_address;
             }
 
-            if(strlen($pin_code) == 0) {
-                $pin_code = $_SESSION['pin_code'];
+            if(strlen($seller_pin_code) == 0) {
+                $seller_pin_code = $_SESSION['seller_pin_code'];
             }
             else {
-                $_SESSION['pin_code'] = $pin_code;
+                $_SESSION['seller_pin_code'] = $seller_pin_code;
             }
 
             //save to database
-            $arr['user_name'] = $user_name;
+            $arr['company_name'] = $company_name;
             $arr['email'] = $_SESSION['email'];
-            $arr['contact'] = $contact;
-            $arr['address'] = $address;
-            $arr['pin_code'] = $pin_code;
-            $query = "update customer set user_name=:user_name, contact=:contact, address=:address, pin_code=:pin_code where email=:email";
+            $arr['seller_contact'] = $seller_contact;
+            $arr['seller_address'] = $seller_address;
+            $arr['seller_pin_code'] = $seller_pin_code;
+            $query = "update seller set company_name=:company_name, seller_contact=:seller_contact, seller_address=:seller_address, seller_pin_code=:seller_pin_code where seller_email=:email";
             $stmnt = $con->prepare($query);
             $stmnt->execute($arr);
 
             echo "<script>
                   alert('Data updated successfully.');
-                  window.location.replace('useraccount.php');
+                  window.location.replace('selleraccount.php');
                   </script>";        
             
         }
@@ -113,7 +113,7 @@
         <!-- script  -->
         <!-- <script src="https://code.jquery.com/jquery-3.5.1.js" type="text/javascript"></script> -->
         <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" type="text/javascript"></script> -->
-        <title> Update profile picture | MusicSTORE</title>
+        <title> Update seller profile picture | MusicSTORE</title>
     </head>
     <body>
         <style>
@@ -124,8 +124,8 @@
                 box-sizing: border-box;
             }
             body {
-                background: url(images/large.jpg) no-repeat;
-                background-size: auto;
+                /* background: url(images/large.jpg) no-repeat;
+                background-size: auto; */
                 font-family: 'Montserrat', sans-serif;
                 min-height: 100vh;
                 display: flex;
@@ -262,7 +262,7 @@
             /* Update */
             main {
                 margin-top: 80px;
-                background: rgba(24,24,24, 0.9);
+                background: whitesmoke;
                 height: 70vh;
                 padding-bottom: 100px;
             }
@@ -281,7 +281,7 @@
                 font-size: 3rem;
                 margin: 80px 0 20px 0;
                 /* color: black; */
-                color: white;
+                color: black;
                 text-align: center;
             }
             .input-data {
@@ -320,16 +320,17 @@
                 /* background-color: #32AEF2; */
                 /* background: #181818; */
                 background: none;
-                color: white;
+                color: black;
                 font-size: 20px;
                 font-family: 'Montserrat', sans-serif;
                 text-transform: uppercase;
-                border: 1px solid white;
+                border: 1px solid black;
                 outline: none;
                 border-radius: 6px;
             }
             .submit-btn:hover {
                 cursor: pointer;
+                color: white;
                 /* background-color: #195aaf; */
                 background: #1b9bff;
                 border: 1px solid #1b9bff;
@@ -342,17 +343,18 @@
                 /* background-color: #32AEF2; */
                 /* background: #181818; */
                 background: none;
-                color: white;
+                color: black;
                 font-size: 20px;
                 font-family: 'Montserrat', sans-serif;
                 text-transform: uppercase;
-                border: 1px solid white;
+                border: 1px solid black;
                 outline: none;
                 border-radius: 6px;
             }
             .delete-btn:hover {
                 cursor: pointer;
                 /* background-color: #195aaf; */
+                color: white;
                 background: red;
                 border: 1px solid red;
                 transition: 0.3s;
@@ -500,21 +502,21 @@
                 <a class="logo" href="index.php">Music<span style="color:#1b9bff;">STORE</span>&trade;</a>
                 <ul class="nav-list">
                     <li><a class="active" href="index.php">Home</a></li>
-                    <li><a class="active" href="useraccount.php"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</a></li>
+                    <li><a class="active" href="selleraccount.php"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</a></li>
                 </ul>                
         </header>
         <main id="top">
             <h2>Change Profile Picture</h2>
             <form action="../private/upload_image.php" method="post" enctype="multipart/form-data" class="form">
                 <input type="file" id="profile_pic" class="input-data" name="imageFile" required="required">
-                <input type="submit" name="user_upload_image" class="submit-btn" value="Upload">
+                <input type="submit" name="seller_upload_image" class="submit-btn" value="Upload">
             </form>
             <?php
-                if($_SESSION['img_name'] != null) {
+                if($_SESSION['seller_dp'] != null) {
             ?>
             <form action="../private/delete_image.php" method="post" accept-charset="utf-8" class="delete-form">
                 <input class="hidden" type="text" >
-                <input type="submit" class="delete-btn" name="delete_user_dp" value="Delete Profile Picture">
+                <input type="submit" class="delete-btn" name="delete_seller_dp" value="Delete Profile Picture">
             </form>
             <?php
                 }
@@ -526,28 +528,8 @@
                     <div class="footer-col">
                         <p>Account</p>
                         <ul>
-                            <?php
-                                if($user_name == "") {
-                            ?>
-                                <li><a href="signup.php">Customer</a></li>
-                            <?php
-                                } else {
-                            ?>
-                                <li><a href="useraccount.php">Customer</a></li>
-                            <?php
-                                }
-                            ?>
-                            <?php 
-                                if($_SESSION['is_seller'] == 0) {
-                            ?>
-                            <li><a href="sellerGreeting.php">Seller</a></li>
-                            <?php
-                                } else {
-                            ?>
-                                <li><a href="selleraccount.php">Seller</a></li>
-                            <?php
-                                }
-                            ?>
+                            <li><a href="useraccount.php">Customer</a></li>
+                            <li><a href="selleraccount.php">Seller</a></li>
                             <li><a href="#">Agent</a></li>
                             <li><a href="#">Admin</a></li>
                         </ul>

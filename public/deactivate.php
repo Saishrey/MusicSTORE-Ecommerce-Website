@@ -35,6 +35,7 @@
                     $data = $data[0];
                     $password_hash = $data->password;
                     if(password_verify($password, $password_hash)) {
+                        deleteProfilePic();
                         $query = "delete from customer where email = :email";
                         $stmnt = $con->prepare($query);
                         $check = $stmnt->execute($arr);

@@ -6,6 +6,104 @@
     if(isset($_SESSION['user_name'])) {
         $user_name = $_SESSION['user_name'];
     }
+
+    $company_name = "";
+    $contact = "";
+    $address = "";
+    $user_name = "";
+    $pin_code = "";
+
+    $error = False;
+    $error_num = 0;
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST') {
+        //something was posted
+
+        // to check if company name macthes pattern
+        $company_name = trim($_POST['company_name']);
+        if(strlen($user_name) != 0 && !preg_match("/^[a-zA-Z ]+$/", $user_name) && !$error) {
+            $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
+            $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
+            $error_stmnt .= "Company name can only use letters and spaces.";
+            $error_stmnt .= "</p>";
+            $error = True;
+        }
+        $company_name = esc($company_name);
+
+        // to check if contact number is 10 digits
+        $contact = $_POST['contact'];
+        if(strlen($contact) != 0 && strlen($contact) < 10 && !$error) {
+            $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
+            $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
+            $error_stmnt .= "Contact number should be 10 digits.";
+            $error_stmnt .= "</p>";
+            $error = True;
+            $error_num = 1;
+        }
+        
+        // to check if address is <= 250
+        $address = $_POST['address'];
+        if(strlen($address) > 250 && !$error) {
+            $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
+            $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
+            $error_stmnt .= "Address length is 250 characters.";
+            $error_stmnt .= "</p>";
+            $error = True;
+            $error_num = 2;
+        }
+
+        // to check if pincode is <= 6
+        $pin_code = $_POST['pin_code'];
+        if(strlen($pin_code) != 0 && strlen($pin_code) < 6 && !$error) {
+            $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
+            $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
+            $error_stmnt .= "Pin code must be 6 digits.";
+            $error_stmnt .= "</p>";
+            $error = True;
+            $error_num = 3;
+        }
+
+        if(!$error) {
+
+            $_SESSION['company_name'] = $company_name;
+
+            $_SESSION['seller_contact'] = $contact;
+
+            $_SESSION['seller_address'] = $address;
+
+            $_SESSION['seller_pin_code'] = $pin_code;
+
+            $_SESSION['seller_dp'] = null;
+
+            //save to database
+            $_SESSION['is_seller'] = 1;
+
+            $arr['seller_id'] = 'SELLER'.get_random_string(20);
+            $arr['company_name'] = $company_name;
+            $arr['seller_email'] = $_SESSION['email'];
+            $arr['seller_contact'] = $contact;
+            $arr['seller_address'] = $address;
+            $arr['seller_pin_code'] = $pin_code;
+
+            $query1 = "insert into seller (seller_id, seller_email, company_name, seller_address, seller_pin_code, seller_contact) values(:seller_id,:seller_email,:company_name,:seller_address,:seller_pin_code,:seller_contact);";
+            $stmnt1 = $con->prepare($query1);
+            $stmnt1->execute($arr);
+
+            unset($arr);
+            $arr['is_seller'] = 1;
+            $arr['email'] = $_SESSION['email'];
+
+            $query2 = "update customer set is_seller=:is_seller where email=:email";
+            $stmnt2 = $con->prepare($query2);
+            $stmnt2->execute($arr);
+
+            echo "<script>
+                  alert('Data updated successfully. You are a Seller Now!');
+                  window.location.replace('useraccount.php');
+                  </script>";        
+            
+        }
+    }
 ?>
 
 <!DOCTYPE html>
@@ -39,7 +137,7 @@
             header {
                 /* background: #0082e6; */
                 /* background: #181818; */
-                background: rgb(24,24,24);
+                background: rgba(24,24,24, 0.97);
                 position: fixed;
                 /* opacity: 0.7; */
                 height: 80px;
@@ -452,6 +550,7 @@
                                 echo $error_stmnt;
                             }
                         ?>
+                        <p style='color:blue; font-size:14px'>Fill only those fields which you want to update.</p>
                         <input type="text" class="form-control" name="address" placeholder="Address" value="<?=$_SESSION['address']?>" maxlength="250" required="required">
                         <?php
                             if(isset($error_stmnt) && $error_num == 2 && $error_stmnt != "") {
@@ -471,7 +570,7 @@
                                 }
                         ?>
                         <div class="item">
-                            <input type="checkbox" id="checkbox" required="required"><label for="checkbox"> I have read and agreed to the <a href="#">Terms & Conditions</a>.</label>
+                            <input type="checkbox" id="checkbox" required="required"><label for="checkbox"> I have read and agreed to the <a href="terms&cond.php">Terms & Conditions</a>.</label>
                         </div>
                         <hr>
                         <input type="submit" class="submit-btn" value="Confirm">
@@ -483,7 +582,7 @@
                     <img src="images/supplier-pc-img.png" alt="#" />
 
                 </div>
-                <p class="closing">Would like to create a new account? <a href="signup.php">Click here</a></p>
+                <p class="closing">Would like to create a new account? <a href="signup.php" target="_blank">Click here</a></p>
             </main>
             <footer class="footer">
                 <div class="container">

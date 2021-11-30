@@ -73,4 +73,15 @@
 
         return $mail->send();
     }
+
+    function deleteProfilePic($image_name) {
+        $file_pointer = "uploads/".$image_name;
+
+        if(!unlink($file_pointer)) { 
+            echo "<script>
+                alert('Error deleting image.');
+                window.location.replace('../public/update.php');
+                </script>";
+        } 
+    }
 ?>
