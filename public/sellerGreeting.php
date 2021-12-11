@@ -2,6 +2,11 @@
 
     require "../private/autoload.php";
 
+    $guitar = "Guitar";
+    $piano = "Piano";
+    $keyboard = "Keyboard";
+    $drums = "Drums and Percussions";
+    $wind = "Wind instruments";
     
     $user_name = "";
     if(isset($_SESSION['user_name'])) {
@@ -494,10 +499,11 @@
                         <div class="footer-col">
                             <p>shop</p>
                             <ul>
-                                <li><a href="#">guitars</a></li>
-                                <li><a href="#">keyboards</a></li>
-                                <li><a href="#">pianos</a></li>
-                                <li><a href="#">flutes</a></li>
+                                <li><a href="catalogue.php?category=<?=$guitar?>">guitars</a></li>
+                                <li><a href="catalogue.php?category=<?=$piano?>">pianos</a></li>
+                                <li><a href="catalogue.php?category=<?=$keyboard?>">keyboards</a></li>
+                                <li><a href="catalogue.php?category=<?=$drums?>">drums</a></li>
+                                <li><a href="catalogue.php?category=<?=$wind?>">wind</a></li>
                             </ul>
                         </div>
                         <div class="footer-col">

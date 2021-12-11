@@ -2,15 +2,31 @@
 
     require "../private/autoload.php";
 
-    //fetch instruments from database
-    $arr['s_id'] = $_SESSION['seller_id'];
+    if(isset($_GET['instrument_id'])) {
+        //remove instrument from database
+        $array['i_id'] = $_GET['instrument_id'];
 
-    $query = "select * from instrument where s_id = :s_id";
-    $stmnt = $con->prepare($query);
-    $check = $stmnt->execute($arr);
+        $inst_img = $_GET['instrument_img'];
 
-    if($check) {
-        $inst_data = $stmnt->fetchAll(PDO::FETCH_OBJ);  //FETCH_ASSOC for array
+        deleteProfilePic($inst_img);
+
+        $query_del = "delete from instrument where inst_id=:i_id;";
+        $stmnt_del = $con->prepare($query_del);
+        $check_del = $stmnt_del->execute($array);
+
+        header("Location: instruments.php");
+        die;
+    } else {
+        //fetch instruments from database
+        $arr['s_id'] = $_SESSION['seller_id'];
+
+        $query = "select * from instrument where s_id = :s_id";
+        $stmnt = $con->prepare($query);
+        $check = $stmnt->execute($arr);
+
+        if($check) {
+            $inst_data = $stmnt->fetchAll(PDO::FETCH_OBJ);  //FETCH_ASSOC for array
+        }
     }
 ?>
 
@@ -317,7 +333,7 @@
                 /* padding-bottom: 80px; */
             }
             .data {
-                width: 70%;
+                width: 90%;
                 background: white;
                 min-width: 625px;
                 margin: auto;
@@ -361,7 +377,8 @@
             .inst-up-rem {
                 display: flex;
                 flex-direction: row;
-                width: 100%;
+                width: 60%;
+                margin: auto;
                 padding: 40px;
             }
             .inst-up-rem .upload {
@@ -370,7 +387,7 @@
                 background: #3DB026;
                 color: white;
                 margin: 30px;
-                width: 50%;
+                width: 100%;
                 text-align:center;
                 border-radius: 3px;
             }
@@ -400,8 +417,22 @@
             .inst-up-rem .remove:hover {
                 background: #FF7800;
             }
+            .inst-container {
+                display: flex;
+                width: 90%;
+                margin: auto;
+                flex-direction: row;
+                background: #B8E4F0;
+                margin-top: 20px;
+                border-radius: 6px;
+                box-shadow: 0 7px 10px rgba(50, 50, 93, .2);
+            }
             .inst-table {
-                width: 100%;
+                width: 70%;
+                margin: auto;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
             }
             .inst-table p {
                 text-align: center;
@@ -424,6 +455,7 @@
             .inst-table td, tr {
                 border: 1px solid grey;
                 text-align: center;
+                background: white;
                 padding: 10px;
             }
             .inst-table td {
@@ -432,13 +464,50 @@
             .inst-table .sr-no {
                 width: 10%;
             }
-            .inst-table p {
+            .inst-count {
                 margin: auto;
                 text-align: center;
                 padding: 20px;
             }
+            .buy-cart-inst-img-cont  {
+                padding: 30px;
+                width: 30%;
+                /* min-width: 470px; */
+            }
+            .main-square-img {
+                /* margin: 10px; */
+                width: 100%;
+                height: 300px;
+                text-align: center;
+                overflow: hidden;
+                border: 1px solid #1b9bff;
+            }
+            .main-square-img img{
+                /* clip-path: circle(); */
+                max-width:100%;
+                max-height:100%;
+                vertical-align: middle;
+                /* height: 100%; */
+            }
+            .rem-btn {
+                padding: 40px;
+            }
+            .remove-inst {
+                text-decoration: none;
+                padding: 10px 40px;
+                background: #F3950D;
+                color: white;
+                margin-top: 30px;
+                width: 50%;
+                text-align:center;
+                border-radius: 3px;
+            }
+            .remove-inst:hover {
+                background: #FF7800;
+            }
 
 
+            /* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
             /* footer */
             footer {
                 margin-top: auto;
@@ -486,20 +555,38 @@
             .footer-col ul li:not(:last-child){
                 margin-bottom: 10px;
             }
-            .footer-col ul li a{
+            .category-sbmt-btn {
+                background: none;
+                width: 100%;
+                text-align: left;
+                padding: 10px;
+                border: none;
+                font-size: 17px;
+                color: white;
+                font-family: 'Montserrat', sans-serif;
+                text-transform: uppercase;
+            }
+            .category-sbmt-btn:hover {
+                cursor: pointer;
+            }
+            .footer-col ul li a , .footer-col ul li .category-sbmt-btn {
                 font-size: 13px;
                 text-transform: capitalize;
-                /* color: #ffffff; */
+                color: #ffffff;
                 text-decoration: none;
                 font-weight: 300;
-                padding: 0;
                 color: #bbbbbb;
                 display: block;
+                margin: 0;
+                padding: 0;
                 transition: all 0.3s ease;
             }
-            .footer-col ul li a:hover{
+            .footer-col ul li a:hover, .footer-col ul li .category-sbmt-btn:hover{
                 color: #1b9bff;
                 padding-left: 8px;
+            }
+            .hidden-input {
+                display: none;
             }
             .footer-col .social-links a{
                 display: inline-block;
@@ -541,7 +628,7 @@
                 <ul class="nav-list">
                     <li><a class="active" href="index.php">Home</a></li>
                     <li><a class="active" href="#">Orders</a></li>
-                    <li><a class="active" href="#">Cart</a></li>
+                    <li><a class="active" href="cart.php">Cart</a></li>
                     <li><a class="active" href="useraccount.php"><?=$_SESSION['user_name']?></a></li>
                     <li><a class="active" href="selleraccount.php"><?=$_SESSION['company_name']?></a></li>
                 </ul>                
@@ -594,52 +681,57 @@
                                 <?php
                                     if(count($inst_data) == 0) {
                                 ?>
-                                <p class="remove-disabled">Remove Instrument</p>
-                            </div>
-                            <div class="inst-table">
                                 <p>No instruments available.</p>
-                                <?php
-                                    } else {
-                                ?>
-                                <a href="removeInstrument.php" class="remove">Remove Instrument</a>
-                            </div>
-                            <div class="inst-table">
-                                <p>Instrument count: <?=count($inst_data)?></p>
-                                <table>
-                                    <tr>
-                                        <th class="sr-no">Sr. No.</th>
-                                        <th>Name</th>
-                                        <th>ID</th>
-                                        <th>Category</th>
-                                        <th>Price</th>
-                                    </tr>
-                                    <?php
-                                        for($i = 0; $i < count($inst_data); $i++) {
-                                    ?>
-                                    <tr>
-                                        <td class="sr-no">
-                                            <?=$i+1?>
-                                        </td>
-                                        <td>
-                                            <?=$inst_data[$i]->inst_name?>
-                                        </td>
-                                        <td>
-                                            <?=$inst_data[$i]->inst_id?>
-                                        </td>
-                                        <td>
-                                            <?=$inst_data[$i]->category?>
-                                        </td>
-                                        <td>
-                                            <?=$inst_data[$i]->price?>
-                                        </td>
-                                    </tr>
-                                    
-                                    <?php
-                                        }
-                                    ?>
-                                </table>
-                                <?php
+                                <<?php
                                     }
+                                ?>
+                            </div>
+                            <p class="inst-count">Instrument count: <?=count($inst_data)?></p>
+                            
+                                <?php
+                                    for($i = 0; $i < count($inst_data); $i++) {
+                                ?>
+                                <div class="inst-container">
+                                    <div class="buy-cart-inst-img-cont">
+                                        <div class="main-square-img">
+                                            <img src="../private/uploads/<?=$inst_data[$i]->inst_img?>" alt="Image">
+                                        </div>
+                                    </div>
+                                    <div class="inst-table">
+                                        <table>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>ID</th>
+                                                <th>Category</th>
+                                                <th>Price</th>
+                                                <th>Quantiy</th>
+                                            </tr>
+                                            
+                                            <tr>
+                                                <td>
+                                                    <?=$inst_data[$i]->inst_name?>
+                                                </td>
+                                                <td>
+                                                    <?=$inst_data[$i]->inst_id?>
+                                                </td>
+                                                <td>
+                                                    <?=$inst_data[$i]->category?>
+                                                </td>
+                                                <td>
+                                                    <?=$inst_data[$i]->price?>
+                                                </td>
+                                                <td>
+                                                    <?=$inst_data[$i]->quantity?>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <div class="rem-btn">
+                                            <a class="remove-inst" href="instruments.php?instrument_id=<?=$inst_data[$i]->inst_id?>&instrument_img=<?=$inst_data[$i]->inst_img?>">Remove Instrument</a>
+                                        </div>
+                                    </div>
+                                    </div>
+                                <?php
+                                    } 
                                 ?>
                             </div>
 
@@ -684,10 +776,36 @@
                     <div class="footer-col">
                         <p>shop</p>
                         <ul>
-                            <li><a href="#">guitars</a></li>
-                            <li><a href="#">keyboards</a></li>
-                            <li><a href="#">pianos</a></li>
-                            <li><a href="#">flutes</a></li>
+                        <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Guitar">
+                                    <input type="submit" class="category-sbmt-btn" value="Guitar">
+                                </form>
+                            </li>
+                            <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Piano">
+                                    <input type="submit" class="category-sbmt-btn" value="Piano">
+                                </form>
+                            </li>
+                            <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Keyboard">
+                                    <input type="submit" class="category-sbmt-btn" value="Keyboard">
+                                </form>
+                            </li>
+                            <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Drums and Percussions">
+                                    <input type="submit" class="category-sbmt-btn" value="Drums">
+                                </form>
+                            </li>
+                            <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Wind instruments">
+                                    <input type="submit" class="category-sbmt-btn" value="Wind">
+                                </form>
+                            </li>
                         </ul>
                     </div>
                     <div class="footer-col">

@@ -3,12 +3,7 @@
     require "../private/autoload.php";
 
     $user_data = check_login($con);
-
-    if(isset($_SESSION['email']) && $_SESSION['email'] == "dbmsbrdrs@gmail.com") {
-        header("Location: adminPage.php");
-        die;
-    }
-
+    
     $user_name = "";
     if(isset($_SESSION['user_name'])) {
         $user_name = $_SESSION['user_name'];
@@ -21,7 +16,7 @@
 
     //fetch instruments from database
 
-    $query = "select * from instrument order by rand() limit 6";
+    $query = "select * from instrument limit 6";
     $stmnt = $con->prepare($query);
     $check = $stmnt->execute();
 
@@ -42,7 +37,6 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
         <!-- <link rel="stylesheet" href="styling.css"> -->
         <title>MusicSTORE | E-COMMERCE WEBSITE</title>
-
     </head>
     <body>
 
@@ -60,6 +54,9 @@
                 display: flex;
                 flex-direction: column;
             }
+            .hidden-input {
+                display: none;
+            }
             header {
                 /* background: #0082e6; */
                 /* background: #181818; */
@@ -71,7 +68,6 @@
                 width: 100%;
                 border-bottom: 1px solid #1b9bff;
             }
-            
             .logo {
                 color: white;
                 font-size: 35px;
@@ -200,7 +196,7 @@
             }
             .top-section .box {
                 width: 50%;
-                padding: 200px 0 250px 0;
+                padding: 200px 0 200px 0;
             }
             .top-section .detail-box {
                 margin: auto;
@@ -421,7 +417,7 @@
                 <ul class="nav-list">
                     <li><a class="active" href="index.php">Home</a></li>
                     <li>
-                        <a href="catalogue.php">Categories</a>
+                        <a class="active" href="#">Categories</a>
                         <ul class="sub-list-account">
                         <li>
                                 <form action="catalogue.php" method="get">
@@ -458,13 +454,13 @@
                             </li>
                         </ul>
                     </li>
-                    <li><a  href="aboutUs.php">About us</a></li>
-                    <li><a  href="#">Contact</a></li>
+                    <li><a class="active" href="aboutUs.php">About us</a></li>
+                    <li><a class="active" href="#">Contact</a></li>
                     <?php
                         if($user_name != "") {
                     ?>
                     <li> 
-                        <a  href="useraccount.php"><?=$_SESSION['user_name']?></a>
+                        <a class="active" href="useraccount.php"><?=$_SESSION['user_name']?></a>
                         <ul class="sub-list-account">
                             <li><a href="useraccount.php">My Profile</a></li>
                             <?php 
@@ -475,7 +471,7 @@
                                 }
                             ?>
                             <li><a href="#">Orders</a></li>
-                            <li><a href="cart.php">Cart</a></li>
+                            <li><a href="#">Cart</a></li>
                             <hr>
                             <li><a href="logout.php">Sign out</a></li>
                         </ul>
@@ -484,7 +480,7 @@
                         } else {
                     ?>
                     <li class="submenu">
-                        <a  href="login.php">Sign in</a>
+                        <a class="active" href="login.php">Sign in</a>
                         <!-- <a onclick="window.open(document.URL, '_popup', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');">Open New Window</a> -->
                     <?php
                         }
@@ -492,275 +488,6 @@
                 </ul>                
             </header>
             <main id="top">
-               <div class="top-section" >
-                   <div class="box">
-                        <div class="detail-box">
-                            <h1><span>Sale 20% Off</span>
-                            <br>
-                            On all instruments</h1>
-                            <div class="btn-box">
-                                <a href="catalogue.php" class="btn1">Shop Now</a>   
-                            </div>   
-                        </div>
-                   </div> 
-               </div>
-                <style>
-                    main .product-box {
-                        background: url(images/bg_main.png);
-                        background-size: cover; 
-                        background-attachment: fixed;
-                        height: auto;
-                        min-width: 1425px;
-                        padding: 100px;
-                    }
-                    .product-box h1 {
-                        width: 80%;
-                        margin: auto;
-                        text-align: center;
-                        font-weight: 100;
-                        font-size: 48px;
-                        color: white;
-                    }
-                    .product-box .search-box-container {
-                        width: 80%;                  
-                        margin: auto;
-                        text-align: center;
-                        padding: 40px;
-                    }
-                    .search-box-container .search-box from {
-                        font-family: 'Montserrat', sans-serif;
-                    }
-                    .search-box-container .form-control {
-                        background: none;
-                        font-size: 22px;
-                        color: white;
-                        min-height: 55px;
-                        width: 40%;
-                        border: none;
-                        border-bottom: 1px solid white;
-                        outline: none;
-                        margin: 0 15px 0 15px;
-                    }
-                    .search-box-container .sbmt-btn {
-                        padding: 10px 20px;
-                        margin-bottom: 0;
-                        font-size: 22px;
-                        text-align: center;
-                        background: #1b9bff;
-                        font-family: 'Montserrat', sans-serif;
-                        color: white;
-                        min-height: 55px;
-                        border-bottom: 1px solid #1b9bff;
-                        border: none;
-                        border-radius: 4px;
-                    }
-                    .sbmt-btn:hover {
-                        cursor: pointer;
-                        background: #337ab7;
-                        transition: 250ms;
-                    }
-                    .product-box .view-all-inst {
-                        width: 80%;
-                        padding-top: 40px;
-                        margin: auto;
-                        text-align: center;
-                    }
-                    .view-all-inst a {
-                        font-size: 22px;
-                        text-decoration: none;
-                        color: white;
-                    }
-                    .view-all-inst a:hover {
-                        color: #1b9bff;
-                        transition: 500ms linear;
-                    }
-                    .products-div {
-                        width: 100%;
-                        display: flex;
-                        flex-direction: column;
-                    }
-                    .products-div .product-container {
-                        width: 80%;
-                        margin: auto;
-                        margin-top: 30px;
-                        margin-bottom: 30px;
-                        display: flex;
-                        flex-direction: row;
-                    }
-                    .product-container .main-product {
-                        width: 350px;
-                        margin: auto;
-                        margin-top: 10px;
-                        margin-bottom: 10px;
-                        text-transform: capitalize;
-                        background: #141E61;
-                        /* background: #3D2C8D; */
-                        padding: 20px 30px;
-                        border-radius: 6px;
-                        border-bottom: 5px solid #3EDBF0;
-                    }
-                    .main-product {
-                        text-decoration: none;
-                    }
-                    .main-product h1 {
-                        font-size: 28px;
-                    }
-                    .main-product:hover {
-                        /* background: #344CB7; */
-                        /* cursor: pointer; */
-                        box-shadow: 0 0 20px 7px #3EDBF0;
-                        transition: 200ms ease-out;
-                    }
-                    .main-product h1, .main-product h2 {
-                        color: white;
-                        width: 100%;
-                        /* color: #150E56; */
-                        text-align: left;
-                        padding: 10px 0 10px 0;
-                    }
-                    .main-product h4 {
-                        color: #D3E4CD;
-                        text-align: right;
-                        width: 100%;
-                        font-size: 14px;
-                        padding: 10px 0 10px 0;
-                    }
-                    .inst-img-container {
-                        width: 100%;
-                        /* min-width: 470px; */
-                    }
-                    .square-img {
-                        /* margin-left: 100px;
-                        margin-right: 20px; */
-                        width: 100%;
-                        height: 375px;
-                        overflow: hidden;
-                        display: inline-block;
-                        border-radius: 6px;
-                    }
-                    .square-img img{
-                        /* clip-path: circle(); */
-                        width: 100%;
-                        height: 100%;
-                    }
-                    .price-and-buy {
-                        display: flex;
-                        flex-direction: row;
-                    }
-                    .price-and-buy .sub-div {
-                        width: 100%;
-                        display: flex;
-                        flex-direction: row;
-                    }
-                    .hidden-input {
-                        display: none;
-                    }
-                    .sub-div h2, h3 {
-                        text-align: center;
-                        height: 60px;
-                        width: 50%;
-                        padding: 10px 0 10px 0;
-
-                    }
-                    .sub-div h3 {
-                        color: #D3E4CD;
-                    }
-                    /* .sub-div form {
-                        width: 100%;
-                        text-align: right;
-                    }
-                    .sub-div form .sbmt-btn {
-                        text-decoration: none;
-                        width: 100%;
-                        padding: 15px;
-                        background: #F3950D;
-                        border: none;
-                        font-family: 'Montserrat', sans-serif;
-                        color: white;
-                        font-size: 18px;
-                        text-align:center;
-                        margin-top: 25px;
-                        border-radius: 3px;
-                    }
-                    .sub-div form .sbmt-btn:hover {
-                        background: rgb(187,103,54);
-                        transition: 250ms linear;
-                    } */
-
-                </style>
-                <div class="product-box">
-                    <h1>Find your next instrument here.</h1>
-                    <div class="search-box-container">
-                        <form action="catalogue.php" method="get">
-                            <input type="search" name="search" class="form-control" placeholder="Search your favourites">
-                            <input type="submit" value="Search" class="sbmt-btn" title="Click to buy">
-                        </form>
-                    </div>
-                    <div class="products-div">
-                        <?php
-                            $i = 0;
-                            $max = count($inst_data);
-
-                            while($i < $max) {
-                        ?>
-                        <div class="product-container">
-                        
-                        <?php 
-                            $count = 0;
-                            while($count < 3 && $i < $max) {
-                        ?>
-                            <a class="main-product" href="productPage.php?inst_id=<?=$inst_data[$i]->inst_id?>&category=<?=$inst_data[$i]->category?>">
-                            <div class="prod-info" class="wow">
-                               
-                                <h1><?=$inst_data[$i]->inst_name?></h1>
-                                <h4><?=$inst_data[$i]->brand_name?></h4>
-                                <div class="inst-img-container">
-                                    <div class="square-img" >
-                                        <img src="../private/uploads/<?=$inst_data[$i]->inst_img?>" alt="Image">
-                                    </div>
-                                </div>
-                                <div class="price-and-buy">
-                                    <div class="sub-div">
-                                        <h2>&#8377; <?=$inst_data[$i]->price?> </h2>
-                                        <?php
-                                            $og_price = $inst_data[$i]->price + (0.2*$inst_data[$i]->price);
-                                        ?>
-                                        <h3>&#8377;<s><?=$og_price?></s></h3>
-                                    </div>
-                                </div>
-                                
-                                
-                            </div>
-                        <?php
-                            $count++;
-                            $i++;
-                            }
-                        ?>
-                        </div>
-                        </a>
-                        <?php
-                            }
-                        ?>
-                    </div>
-                    <div class="view-all-inst">
-                        <a  href="catalogue.php">View all Instruments</a>
-                    </div>
-                </div>
-                <div class="quote-div" id="quote-div">
-                    <div class="img-container">
-                        <div class="quote-container">
-                        </div>
-                        <div class="quote-container">
-                            <div class=quote>
-                                <h1>#Quote</h1>
-                                <h2>"One good thing about music, when it hits you, you feel no pain."</h2>
-                                <div class="btn-box">
-                                    <a href="catalogue.php" class="btn1">Shop Now</a>        
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="why-shop">
                     <h1>Why shop with us</h1>
                     <div class="why-shop-container" >

@@ -49,11 +49,13 @@
                         $_SESSION['user_name'] = $data->user_name;
                         $_SESSION['email'] = $data->email;
                         $_SESSION['contact'] = $data->contact;
-                        $_SESSION['address'] = $data->address;
-                        $_SESSION['pin_code'] = $data->pin_code;
                         $_SESSION['img_name'] = $data->img_name;
                         $_SESSION['is_seller'] = $data->is_seller;
 
+                        if($_SESSION['email'] == "dbmsbrdrs@gmail.com") {
+                            header("Location: adminPage.php");
+                            die;
+                        }
                         if($_SESSION['is_seller'] == 1) {
                             $query = "select * from seller where seller_email = :email limit 1";
                             $stmnt2 = $con->prepare($query);

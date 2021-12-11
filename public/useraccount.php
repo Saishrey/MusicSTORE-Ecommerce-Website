@@ -1,6 +1,157 @@
 <?php 
 
     require "../private/autoload.php";
+
+    $contact = "";
+    $locality = "";
+    $city = "";
+    $state = "";
+    $country = "";
+    $user_name = "";
+    $pin_code = "";
+
+    $error = False;
+
+    if(isset($_POST['user_name'])) {
+        // to check if username matches pattern
+        $user_name = trim($_POST['user_name']);
+        if(strlen($user_name) != 0 && !preg_match("/^[a-zA-Z0-9 _]+$/", $user_name) && !$error) {
+            echo "<script>
+                  alert('Please refill the form. Usernames can only use letters, numbers, spaces and underscore.');
+                  window.location.replace('useraccount.php');
+                  </script>"; 
+            $error = True;
+        }
+        $user_name = esc($user_name);
+
+        if(!$error) {
+            if(strlen($user_name) == 0) {
+                $user_name = $_SESSION['user_name'];
+            }
+            else {
+                $_SESSION['user_name'] = $user_name;
+            }
+        }
+
+        //save to database
+        $arr['user_name'] = $user_name;
+        $arr['email'] = $_SESSION['email'];
+        $query = "update customer set user_name=:user_name where email=:email";
+        $stmnt = $con->prepare($query);
+        $stmnt->execute($arr);
+
+        $_SESSION['user_name'] = $user_name;
+        echo "<script>
+                alert('Username updated successfully.');
+                window.location.replace('useraccount.php');
+                </script>";        
+    } 
+    else if(isset($_POST['contact'])) {
+       // to check if contact number is 10 digits
+       $contact = $_POST['contact'];
+       if(strlen($contact) != 0 && strlen($contact) < 10 && !$error) {
+           echo "<script>
+                 alert('Please refill the form. Contact number should be 10 digits.');
+                 window.location.replace('useraccount.php');
+                 </script>"; 
+           $error = True;
+       }
+
+       if(!$error) {
+            if(strlen($contact) == 0) {
+                $contact= $_SESSION['contact'];
+            }
+            else {
+                $_SESSION['contact'] = $contact;
+            }
+        }
+
+        //save to database
+        $arr['contact'] = $contact;
+        $arr['email'] = $_SESSION['email'];
+        $query = "update customer set contact=:contact where email=:email";
+        $stmnt = $con->prepare($query);
+        $stmnt->execute($arr);
+
+        $_SESSION['contact'] = $contact;
+        echo "<script>
+                alert('Contact updated successfully.');
+                window.location.replace('useraccount.php');
+                </script>";        
+    } 
+    else if($_SERVER['REQUEST_METHOD'] == 'POST') {
+        // address
+        // to check if address is <= 250
+        $locality= $_POST['locality'];
+        if(strlen($locality) > 250 && !$error) {
+            echo "<script>
+                  alert('Please refill the form. Locality length is maximum 250 characters.');
+                  window.location.replace('useraccount.php');
+                  </script>"; 
+            $error = True;
+        }
+        $locality = esc($locality);
+
+        $city = $_POST['city'];
+        if(strlen($city) > 250 && !$error) {
+            echo "<script>
+                  alert('Please refill the form. City length is maximum 100 characters.');
+                  window.location.replace('useraccount.php');
+                  </script>"; 
+            $error = True;
+        }
+        $city = esc($city);
+
+        // to check if pincode is <= 6
+        $pin_code = $_POST['pin_code'];
+        if(strlen($pin_code) != 0 && strlen($pin_code) < 6 && !$error) {
+            echo "<script>
+                  alert('Please refill the form. Pincode must be 6 digits.');
+                  window.location.replace('useraccount.php');
+                  </script>"; 
+            $error = True;
+        }
+
+        $state = $_POST['state'];
+        $country = $_POST['country'];
+
+        //save to database
+        $arr['user_id'] = $_SESSION['user_id'];
+        $arr['locality'] = $locality;
+        $arr['state'] = $state;
+        $arr['country'] = $country;
+        $arr['city'] = $city;
+        $arr['pin_code'] = $pin_code;
+        $query = "insert into address(c_id,locality,city,state,country,pin_code) values (:user_id,:locality,:city,:state,:country,:pin_code);";
+        $stmnt = $con->prepare($query);
+        $stmnt->execute($arr);
+
+        echo "<script>
+              alert('Address uploaded successfully.');
+              window.location.replace('useraccount.php');
+              </script>";
+    }
+    else if(isset($_GET['remove_address'])) {
+        //remove address from database
+        $array['a_id'] = $_GET['remove_address'];
+
+        $query_del = "delete from address where address_id=:a_id;";
+        $stmnt_del = $con->prepare($query_del);
+        $check_del = $stmnt_del->execute($array);
+
+        header("Location: useraccount.php");
+        die;
+    }
+
+    $arr['c_id'] = $_SESSION['user_id'];
+    $query = "select * from address where c_id=:c_id";
+    $stmnt = $con->prepare($query);
+    $check = $stmnt->execute($arr);
+
+    if($check) {
+        $cust_data = $stmnt->fetchAll(PDO::FETCH_OBJ);  //FETCH_ASSOC for array
+    }
+
 ?>
 
 <!DOCTYPE html>
@@ -25,7 +176,8 @@
             body {
                 /* background: url(images/bg_img1.png) no-repeat;
                 background-size: cover; */
-                background: rgb(24,24,24);
+                /* background: rgb(24,24,24); */
+                background-color: rgb(239,243,246);
                 font-family: 'Montserrat', sans-serif;
                 min-height: 100vh;
                 display: flex;
@@ -177,7 +329,6 @@
                 padding: 80px;
                 background: url(images/bg_main.png) no-repeat;
                 background-size: cover;
-                background-attachment: fixed;
                 animation-name: topbar-anim;
                 animation-duration: 1s;
                 animation-timing-function: linear;
@@ -270,7 +421,8 @@
             }
             .data {
                 width: 70%;
-                background: rgb(48,49,52);
+                /* background: rgb(48,49,52); */
+                background-color: rgb(239,243,246);
                 min-width: 625px;
                 margin: auto;
                 position: relative;
@@ -284,6 +436,7 @@
             }
             .top-menu {
                 width: 100%;
+                background: #293A80;
                 border-radius: 6px 6px 0 0;
                 padding: 20px 40px;
                 border-bottom: 1px solid #1b9bff;
@@ -315,7 +468,7 @@
                 color: #1b9bff;
                 border-bottom: 2px solid white;
             }
-            .data form {
+            .data .account-details {
                 display: flex;
                 flex-direction: column;
                 /* margin: 0 40px 0 40px; */
@@ -334,26 +487,52 @@
                 /* background: #181818; */
                 /* background: rgba(24,24,24, 0.8); */
             }
+            .data .account-details > form {
+                width: 100%;
+            }
             .data:hover {
                 box-shadow: 0 10px 30px rgba(50, 50, 93, .2);
                 transition: 500ms;
             }
-            .data form h2 {
+            .data .account-details h2 {
                 font-size: 3rem;
                 margin-bottom: 40px;
                 /* color: black; */
-                color: white;
+                /* color: white; */
+                color: rgb(50,50,93);
             }
             .item{
                 padding: 20px;
+                display: flex;
+                flex-direction: row;
                 font-size: 20px;
                 width: 80%;
+                margin: auto;
                 /* margin: 15px; */
                 border: none;
                 outline: none;                
-                color: whitesmoke;
+                color: rgb(96,108,138);
                 /* background-color: #F1F3F4; */
                 /* background-color: #B8C1C6; */
+            }
+            .item h3 {
+                width: 30%;
+                text-align: right;
+                padding-right: 100px;
+            }
+            .item .update-submit {
+                text-align: center;
+                width: 20%;
+                color: purple;
+            }
+            .item a {
+                text-align: center;
+                width: 20%;
+                color: purple;
+            }
+            .item a:hover {
+                transition: 250ms linear;
+                color: #1b9bff;
             }
             .item .fix-email {
                 padding: 5px 2px;
@@ -371,181 +550,90 @@
                 /* background-color: #B8C1C6; */
                 /* background-color: #373737; */
                 background: none;
-            }
+            }     
             .form-control {
                 padding: 5px 2px;
                 font-size: 18px;
                 max-width: 1000px;
-                width: 60%;
+                width: 50%;
                 /* margin: 15px; */
                 border: none;
-                border-bottom: 2px solid whitesmoke;
+                border-bottom: 2px solid grey;
                 font-family: 'Montserrat', sans-serif;
                 outline: none;
                 float: right;
-                color: white;
+                color: black;
                 /* background-color: #F1F3F4; */
                 /* background-color: #B8C1C6; */
                 /* background-color: #373737; */
                 background: none;
             }
-            .data form .update {
-                text-decoration: none;
-                /* color: #4A616B; */
-                color: grey;
-                margin-top: 20px;
-                font-size: 14px;
-            }
-            .data form .update:hover {
-                /* color: #1A73E8; */
-                color: #1b9bff;
-            }
-            hr {
-                width: 80%;
-                margin: 30px;
-            }
-            .deactivate {
-                text-decoration: none;
-                padding: 12px 30px;
-                width: 40%;
-                margin-top: 15px;
-                /* background-color: #32AEF2; */
-                /* background: #181818; */
-                background: none;
-                color: white;
-                font-size: 20px;
-                font-family: 'Montserrat', sans-serif;
-                text-transform: uppercase;
+            .address {
+                margin-top: 50px;
+                width: 100%;
+            }  
+            .address form {
                 text-align: center;
-                border: 1px solid whitesmoke;
-                outline: none;
+                width: 80%;
+                margin: auto;
+                padding-bottom: 40px;
+                border: 2px solid #1b9bff;
                 border-radius: 6px;
+            }    
+            .address form .item {
+                width: 100%;
             }
-            .deactivate:hover {
-                cursor: pointer;
-                /* background-color: #195aaf; */
-                background: red;
-                color:white;
-                border: 1px solid red;
-                transition: 0.3s;
+            .address form > h3 {
+                font-size: 24px;
+                padding: 10px 5px;
+                color: rgb(96,108,138);
+                width: max-content;
+                position: relative;
+                bottom: 27px;
+                left: 50px;
+                background-color: rgb(239,243,246);
             }
             .submit-btn {
-                padding: 12px 30px;
-                width: 40%;
-                margin-top: 15px;
-                /* background-color: #32AEF2; */
-                /* background: #181818; */
-                background: none;
-                color: white;
-                font-size: 20px;
                 font-family: 'Montserrat', sans-serif;
-                text-transform: uppercase;
-                border: 1px solid whitesmoke;
+                background: none;
                 outline: none;
-                border-radius: 6px;
+                width: 50%;
+                margin: auto;
+                /* margin-top: 20px;
+                margin-bottom: 20px; */
+                border: none;
+                font-size: 20px;
+                text-align: center;
+                color: purple;
+            }
+            .smbt {
+                width: 50%;
+                margin: auto;
+                text-align: center;
             }
             .submit-btn:hover {
                 cursor: pointer;
-                color: white;
-                /* background-color: #195aaf; */
-                background: #1b9bff;
-                border: 1px solid #1b9bff;
-                transition: 0.3s;
-            }
-
-
-            /* footer */
-            footer {
-                margin-top: auto;
-            }
-            .container{
-                max-width: 1170px;
-                margin: auto;
-            }
-            .row{
-                display: flex;
-                flex-wrap: wrap;
-            }
-            footer ul{
-                list-style: none;
-            }
-            .footer{
-                background-color: #24262b;
-                padding: 60px 0;
-            }
-            .footer-col{
-                width: 25%;
-                padding: 0 15px;
-            }
-            .footer-col p{
-                font-size: 15px;
-                color: white;
-                width: 50%;
-                text-transform: capitalize;
-                margin-bottom: 35px;
-                padding-bottom: 5px;
-                border-bottom: 2px solid #1b9bff;
-                /* font-weight: 500; */
-                /* position: relative; */
-            }
-            /* .footer-col p::before{
-                content: '';
-                position: absolute;
-                left:0;
-                bottom: -10px;
-                background-color: #1b9bff;
-                height: 2px;
-                box-sizing: border-box;
-                width: 50px;
-            } */
-            .footer-col ul li:not(:last-child){
-                margin-bottom: 10px;
-            }
-            .footer-col ul li a{
-                font-size: 13px;
-                text-transform: capitalize;
-                /* color: #ffffff; */
-                text-decoration: none;
-                font-weight: 300;
-                padding: 0;
-                color: #bbbbbb;
-                display: block;
-                transition: all 0.3s ease;
-            }
-            .footer-col ul li a:hover{
                 color: #1b9bff;
-                padding-left: 8px;
+                transition: 250ms linear;
             }
-            .footer-col .social-links a{
-                display: inline-block;
-                height: 40px;
-                width: 40px;
-                background-color: rgba(255,255,255,0.2);
-                margin:0 10px 10px 0;
+            .add-address {
+                font-family: 'Montserrat', sans-serif;
+                background: none;
+                outline: none;
+                width: 50%;
+                margin: auto;
+                margin-top: 20px;
+                margin-bottom: 20px;
+                border: none;
+                font-size: 20px;
                 text-align: center;
-                /* line-height: 40px; */
-                border-radius: 50%;
-                color: #ffffff;
-                transition: all 0.5s ease;
+                color: purple;
             }
-            .footer-col .social-links a:hover{
-                color: #24262b;
-                background-color: #ffffff;
+            .add-address:hover {
+                cursor: pointer;
+                color: #1b9bff;
+                transition: 250ms linear;
             }
-
-            /*responsive*/
-            @media(max-width: 767px){
-                .footer-col{
-                    width: 50%;
-                    margin-bottom: 30px;
-                }
-            }
-            @media(max-width: 574px){
-                .footer-col{
-                    width: 100%;
-                }
-            }
-
         </style>
             <header class="myheader" id="header">
                 <input type="checkbox" id="check">
@@ -556,7 +644,7 @@
                 <ul class="nav-list">
                     <li><a class="active" href="index.php">Home</a></li>
                     <li><a class="active" href="#">Orders</a></li>
-                    <li><a class="active" href="#">Cart</a></li>
+                    <li><a class="active" href="cart.php">Cart</a></li>
                     <li><a class="active" href="useraccount.php"><?=$_SESSION['user_name']?></a></li>
                     <?php 
                         if($_SESSION['is_seller'] == 1) {
@@ -607,16 +695,16 @@
                                     <ul>
                                         <li><a class="active" href="useraccount.php">My Account</a></li>
                                         <li><a href="#">Orders</a></li>
-                                        <li><a href="#">Cart</a></li>
+                                        <li><a href="cart.php">Cart</a></li>
                                     </ul>
                                 </div>
                             </div>
-                            <form method="post" action="updateseller.php">
+                            <!-- <form method="post" action="updateseller.php">
                                 <h2>Account details</h2>
-                                <p style='color:#1bffbf; font-size:14px'>Fill only those fields which you want to update.</p>
+                                <p style='color:orange; font-size:14px'>Fill only those fields which you want to update.</p>
                                 <div class="item">
                                     <label for="email">Email:</label>
-                                    <p class="fix-email" style="color:#A2D2FF;" id="email" title="Cannot edit email"><?=$_SESSION['email']?></p>
+                                    <p class="fix-email" style="color:#grey;" id="email" title="Cannot edit email"><?=$_SESSION['email']?></p>
                                 </div>
                                 <div class="item">
                                     <label for="username">Username:</label>
@@ -638,11 +726,261 @@
                                 <input type="submit" class="submit-btn" value="Update" name="update">
                                 <hr>
                                 <a href="#" class="deactivate">Deactivate Account</a>
-                            </form>
+                            </form> -->
+                            <div class="account-details">
+                                <h2>Account details</h2>
+                                <p style='color:orange; font-size:14px'>Fill only those fields which you want to update.</p>
+                                <div class="item">
+                                    <h3>Email:</h3>
+                                    <p class="fix-email" style="color:#grey;" id="email" title="Cannot edit email"><?=$_SESSION['email']?></p>
+                                </div>
+                                <form action="useraccount.php" method="post">
+                                <div class="item">
+                                    <h3>Username:</h3>
+                                    <input type="text" class="form-control" id="username" name="user_name" placeholder="Username" value="<?=$_SESSION['user_name']?>" maxlength="20" title="Username">
+                                    <div class="update-submit">
+                                        <input type="submit" class="submit-btn" value="Update" name="update">
+                                    </div>    
+                                </div>
+                                </form>   
+                                <form action="useraccount.php" method="post">
+                                <div class="item">
+                                    <h3>Contact:</h3>
+                                    <input type="text" name="contact" id="contact" class="form-control" placeholder="Contact" value="<?=$_SESSION['contact']?>" maxlength="10" title="Contact">
+                                    <div class="update-submit">
+                                        <input type="submit" class="submit-btn" value="Update" name="update">
+                                    </div>  
+                                </div>
+                                </form>
+                                <?php
+                                    if(isset($cust_data) && count($cust_data) > 0) {
+                                        for($i = 0; $i < count($cust_data); $i++) {
+                                ?>
+                                <div class="address">
+                                    <form>
+                                        <h3>Address <?=$i+1?></h3>
+                                        <div class="item">
+                                            <h3>Locality:</h3>
+                                            <p class="fix-email" style="color:#grey; text-align: left;" id="email" ><?=$cust_data[$i]->locality?></p>
+                                        </div>
+                                        <div class="item">
+                                            <h3>City:</h3>
+                                            <p class="fix-email" style="color:#grey; text-align: left;" id="email" ><?=$cust_data[$i]->city?></p>
+                                        </div>
+                                        <div class="item">
+                                            <h3>State:</h3>
+                                            <p class="fix-email" style="color:#grey; text-align: left;" id="email" ><?=$cust_data[$i]->state?></p>
+                                        </div>
+                                        <div class="item">
+                                            <h3>Country:</h3>
+                                            <p class="fix-email" style="color:#grey; text-align: left;" id="email" ><?=$cust_data[$i]->country?></p>
+                                        </div>
+                                        <div class="item">
+                                            <h3>PIN Code:</h3>
+                                            <p class="fix-email" style="color:#grey; text-align: left;" id="email" ><?=$cust_data[$i]->pin_code?></p>
+                                        </div> 
+                                        <div class="sbmt">
+                                            <a class="add-address" href="useraccount.php?remove_address=<?=$cust_data[$i]->address_id?>">Remove address</a>
+                                        </div>
+                                    </form>
+                                </div>
+                                <?php
+                                        }
+                                    }
+                                ?>
+                                <?php
+                                    if(isset($_GET['add_address']) && $_GET['add_address'] == 'true') {
+                                ?>
+                                <div class="address">
+                                    <form action="useraccount.php" method="post">
+                                        <h3>New Address</h3>
+                                        <div class="item">
+                                            <h3>Locality:</h3>
+                                            <input type="text" class="form-control" id="locality" name="locality" placeholder="Locality" required="required" maxlength="250" title="Locality">
+                                        </div>
+                                        <div class="item">
+                                            <h3>City:</h3>
+                                            <input type="text" name="city" id="city" class="form-control" placeholder="City" required="required" maxlength="100" title="City">
+                                        </div>
+                                        <div class="item">
+                                            <h3>State:</h3>
+                                            <select name="state" id="state" class="form-control">
+                                                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                                <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                                                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                                                <option value="Assam">Assam</option>
+                                                <option value="Bihar">Bihar</option>
+                                                <option value="Chandigarh">Chandigarh</option>
+                                                <option value="Chhattisgarh">Chhattisgarh</option>
+                                                <option value="Dadar and Nagar Haveli">Dadar and Nagar Haveli</option>
+                                                <option value="Daman and Diu">Daman and Diu</option>
+                                                <option value="Delhi">Delhi</option>
+                                                <option value="Lakshadweep">Lakshadweep</option>
+                                                <option value="Puducherry">Puducherry</option>
+                                                <option value="Goa">Goa</option>
+                                                <option value="Gujarat">Gujarat</option>
+                                                <option value="Haryana">Haryana</option>
+                                                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                                                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                                                <option value="Jharkhand">Jharkhand</option>
+                                                <option value="Karnataka">Karnataka</option>
+                                                <option value="Kerala">Kerala</option>
+                                                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                                <option value="Maharashtra">Maharashtra</option>
+                                                <option value="Manipur">Manipur</option>
+                                                <option value="Meghalaya">Meghalaya</option>
+                                                <option value="Mizoram">Mizoram</option>
+                                                <option value="Nagaland">Nagaland</option>
+                                                <option value="Odisha">Odisha</option>
+                                                <option value="Punjab">Punjab</option>
+                                                <option value="Rajasthan">Rajasthan</option>
+                                                <option value="Sikkim">Sikkim</option>
+                                                <option value="Tamil Nadu">Tamil Nadu</option>
+                                                <option value="Telangana">Telangana</option>
+                                                <option value="Tripura">Tripura</option>
+                                                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                                <option value="Uttarakhand">Uttarakhand</option>
+                                                <option value="West Bengal">West Bengal</option>
+                                            </select>
+                                        </div>
+                                        <div class="item">
+                                            <h3>Country:</h3>
+                                            <select name="country" id="country" class="form-control">
+                                                <option value="India">India</option>
+                                            </select>
+                                        </div>
+                                        <div class="item">
+                                            <h3>PIN Code:</h3>
+                                            <input type="text" name="pin_code" id="pin_code" class="form-control" placeholder="PIN Code" required="required" maxlength="6" title="Pin code">
+                                        </div> 
+                                        <div class="sbmt">
+                                            <input type="submit" class="submit-btn" value="Confirm" name="confirm">
+                                        </div>
+                                    </form>
+                                </div>
+                                <?php
+                                    } else {
+                                ?>
+                                <a class="add-address" href="useraccount.php?add_address=true">Add address</a>
+                                <?php
+                                    }
+                                ?>
+                            </div>
                         </div>
                     </div>
                 </div>
         </main>
+        <style>
+            /* footer */
+            footer {
+                margin-top: auto;
+            }
+            .container{
+                max-width: 1170px;
+                margin: auto;
+            }
+            .row{
+                display: flex;
+                flex-wrap: wrap;
+            }
+            footer ul{
+                list-style: none;
+            }
+            .footer{
+                background-color: #24262b;
+                padding: 60px 0;
+            }
+            .footer-col{
+                width: 25%;
+                padding: 0 15px;
+            }
+            .footer-col p{
+                font-size: 15px;
+                color: white;
+                width: 50%;
+                text-transform: capitalize;
+                margin-bottom: 35px;
+                padding-bottom: 5px;
+                border-bottom: 2px solid #1b9bff;
+                /* font-weight: 500; */
+                /* position: relative; */
+            }
+            /* .footer-col p::before{
+                content: '';
+                position: absolute;
+                left:0;
+                bottom: -10px;
+                background-color: #1b9bff;
+                height: 2px;
+                box-sizing: border-box;
+                width: 50px;
+            } */
+            .footer-col ul li:not(:last-child){
+                margin-bottom: 10px;
+            }
+            .footer-col ul li a , .footer-col ul li .category-sbmt-btn {
+                font-size: 13px;
+                text-transform: capitalize;
+                color: #ffffff;
+                text-decoration: none;
+                font-weight: 300;
+                color: #bbbbbb;
+                display: block;
+                margin: 0;
+                padding: 0;
+                transition: all 0.3s ease;
+            }
+            .footer-col ul li a:hover, .footer-col ul li .category-sbmt-btn:hover{
+                color: #1b9bff;
+                padding-left: 8px;
+            }
+            .category-sbmt-btn {
+                background: none;
+                width: 100%;
+                text-align: left;
+                padding: 10px;
+                border: none;
+                font-size: 17px;
+                color: white;
+                font-family: 'Montserrat', sans-serif;
+                text-transform: uppercase;
+            }
+            .category-sbmt-btn:hover {
+                cursor: pointer;
+            }
+            .hidden-input {
+                display:none;
+            }
+            .footer-col .social-links a{
+                display: inline-block;
+                height: 40px;
+                width: 40px;
+                background-color: rgba(255,255,255,0.2);
+                margin:0 10px 10px 0;
+                text-align: center;
+                /* line-height: 40px; */
+                border-radius: 50%;
+                color: #ffffff;
+                transition: all 0.5s ease;
+            }
+            .footer-col .social-links a:hover{
+                color: #24262b;
+                background-color: #ffffff;
+            }
+
+            /*responsive*/
+            @media(max-width: 767px){
+                .footer-col{
+                    width: 50%;
+                    margin-bottom: 30px;
+                }
+            }
+            @media(max-width: 574px){
+                .footer-col{
+                    width: 100%;
+                }
+            }
+        </style>
         <footer class="footer">
             <div class="container">
                 <div class="row">
@@ -678,10 +1016,36 @@
                     <div class="footer-col">
                         <p>shop</p>
                         <ul>
-                            <li><a href="#">guitars</a></li>
-                            <li><a href="#">keyboards</a></li>
-                            <li><a href="#">pianos</a></li>
-                            <li><a href="#">flutes</a></li>
+                        <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Guitar">
+                                    <input type="submit" class="category-sbmt-btn" value="Guitar">
+                                </form>
+                            </li>
+                            <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Piano">
+                                    <input type="submit" class="category-sbmt-btn" value="Piano">
+                                </form>
+                            </li>
+                            <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Keyboard">
+                                    <input type="submit" class="category-sbmt-btn" value="Keyboard">
+                                </form>
+                            </li>
+                            <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Drums and Percussions">
+                                    <input type="submit" class="category-sbmt-btn" value="Drums">
+                                </form>
+                            </li>
+                            <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Wind instruments">
+                                    <input type="submit" class="category-sbmt-btn" value="Wind">
+                                </form>
+                            </li>
                         </ul>
                     </div>
                     <div class="footer-col">

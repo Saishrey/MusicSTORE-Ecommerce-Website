@@ -1,6 +1,40 @@
 <?php 
 
     require "../private/autoload.php";
+
+    //fetch instruments from cart
+
+    $arr['user_id'] = $_SESSION['user_id'];
+    $query = "select * from instrument where inst_id in (select instrument_id from cart where customer_id = :user_id);";
+    $stmnt = $con->prepare($query);
+    $check = $stmnt->execute($arr);
+
+    if($check) {
+        $inst_data = $stmnt->fetchAll(PDO::FETCH_OBJ);  //FETCH_ASSOC for array
+    }
+
+    // add to cart 
+    if(isset($_POST['inst_id'])) {
+            
+        $array['cust_id'] = $_SESSION['user_id'];
+        $array['i_id'] = $_POST['inst_id'];
+
+        $query = "delete from cart where customer_id=:cust_id and instrument_id=:i_id;";
+        $stmnt = $con->prepare($query);
+        $check = $stmnt->execute($array);
+
+        if($check) {
+            echo "<script>
+                alert('Instrument deleted from cart.');
+                window.location.replace('cart.php');
+                </script>";
+        } else {
+            echo "<script>
+                alert('Error deleting instrument from cart.');
+                window.location.replace('cart.php');
+                </script>";
+        }
+    }
 ?>
 
 <!DOCTYPE html>
@@ -12,7 +46,7 @@
         <script src="https://kit.fontawesome.com/a076d05399.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
         <link rel="stylesheet" href="styling.css">
-        <title> SellerAccount | MusicSTORE</title>
+        <title> UserAccount | MusicSTORE</title>
     </head>
     <body>
         <style>
@@ -23,9 +57,9 @@
                 box-sizing: border-box;
             }
             body {
-                /* background: url(images/selleraccount_bg.png) no-repeat; */
-                /* background-size: cover; */
-                background: whitesmoke;
+                /* background: url(images/bg_img1.png) no-repeat;
+                background-size: cover; */
+                background-color: rgb(239,243,246);
                 font-family: 'Montserrat', sans-serif;
                 min-height: 100vh;
                 display: flex;
@@ -34,8 +68,8 @@
             header {
                 /* background: #0082e6; */
                 /* background: #181818; */
-                /* background: rgba(24,24,24, 0.9); */
                 background: rgba(24,24,24, 0.97);
+                /* background: rgb(24,24,24); */
                 height: 80px;
                 width: 100%;
                 border-bottom: 1px solid #1b9bff;
@@ -50,9 +84,6 @@
                 font-weight: bold;
                 text-decoration: none;
                 transition: font-size 0.2s;
-            }
-            .logo sub {
-                font-size: 16px;
             }
             .logo:hover {
                 font-size: 36px;
@@ -162,15 +193,11 @@
                     left: 0;
                 }
             }
-            /* Seller account */
-            @keyframes topbar-anim {
-                0% { clip-path: ellipse(15% 100% at 50% 0%);}
-                25% {clip-path: ellipse(30% 100% at 50% 0%);}
-                50% {clip-path: ellipse(45% 100% at 50% 0%);}
-                75% {clip-path: ellipse(60% 100% at 50% 0%);}
-                100% {clip-path: ellipse(75% 100% at 50% 0%);}
+            /* User account */
+            main {
+                padding: 80px 0 0 0;
             }
-            /* @keyframes topbar-anim {
+            @keyframes topbar-anim {
                 from {
                     background: url(images/large.jpg) no-repeat;
                     background-size: cover;
@@ -179,106 +206,49 @@
                     background: url(images/bg_main.png) no-repeat;
                     background-size: cover;
                 }
-            } */
-            main {
-                padding: 80px 0 80px 0;
-                /* background: url(images/user_account);
-                background-size: cover; */
             }
             main .topbar {
-                height: 500px;
-                min-width: 1260px;
-                /* padding: 80px; */
-                /* background: url(images/bg_main.png) no-repeat;
-                background-size: cover; */
-                /* background: rgb(5,29,54); */
-                /* background: linear-gradient(#5D1451, rgb(5,29,54)); */
-                /* clip-path: ellipse(75% 100% at 50% 0%); */
-                /* animation-name: topbar-anim;
-                animation-duration: 400ms;
-                animation-timing-function: linear; */
-            }
-            main .topbar-bg {
                 padding: 80px;
-                height: 300px;
-                /* background: linear-gradient(#5D1451, rgb(5,29,54)); */
-                background: url(images/user_account.jpg);
+                background: url(images/bg_main.png) no-repeat;
                 background-size: cover;
-                background-color: rgb(5,29,54);
+                animation-name: topbar-anim;
+                animation-duration: 1s;
+                animation-timing-function: linear;
+                /* background: #2c3e50; */
+                /* background: rgba(24,24,24, 0.9); */
+                /* background: rgba(7, 38, 65, 0.8); */
+                /* background: linear-gradient(rgba(7, 38, 65, 0.8), rgba(24,24,24, 0.9)); */
+                /* background: linear-gradient(rgba(7, 38, 65), rgba(24,24,24)); */
+                /* clip-path: ellipse(75% 100% at 50% 0%); */
             }
-            ul {
+            main .topbar > ul {
                 list-style: none;
+                margin: auto;
+                padding: 30px 0;
+                text-align: center;
+                align-items: center;
+                width: max-content;
             }
-            main .topbar .topbar-container {
-                height: 200px;
-                display: flex;
-                flex-direction: row;
-                width: 100%;
-                border: 2px solid #1b9bff;
-                border-top: none;
-                border-radius: 0 0 20px 20px;
-                box-shadow: 0 7px 20px rgba(50, 50, 93, .2);
-                background: white;
-            }
-            .img-container {
-                width: 25%;
-                min-width: 470px;
-            }
-            .outer-ul {
-                padding: 20px 0 20px 0;
-                display: flex;
-                flex-direction: column;
-                /* flex-wrap: wrap; */
-                /* margin: auto; */
-                /* padding: 30px 0; */
-                /* text-align: center; */
-                width: 25%;
-                min-width: 470px;
-            }
-            .outer-ul li {
-                padding: 5px 0 5px 0;
-            }
-            @keyframes ul-anim {
+            @keyframes img-anim {
                 from {
-                    left: 300px;
+                    width: 200px;
+                    height: 200px;
                 }
                 to {
-                    left: 0;
+                    width: 300px;
+                    height: 300px;
                 }
             }
-            .btn-container {
-                /* margin-top: 30px; */
-                width: 50%;
-            }
-            .sign-out {
-                text-align: right;
-                margin: 80px 100px 50px 0;
-                /* margin-left: auto; */
-                /* margin-right: 0; */
-            }
-            .sign-out a {
-                padding: 10px 30px;
-                background: rgb(5,29,54);
-                border-radius: 6px;
-                color: white;
-                text-decoration: none;
-                text-transform: uppercase;
-            }
-            .sign-out a:hover {
-                background: #1b9bff;
-                transition: 250ms;
-            }
             .circular_image {
-                margin-left: 100px;
-                margin-right: 20px;
                 width: 300px;
                 height: 300px;
                 border-radius: 50%;
                 overflow: hidden;
                 display: inline-block;
                 border: 6px solid #3EDBF0;
-                position: relative;
-                bottom: 150px;
+                animation-name: img-anim;
+                animation-duration: 300ms;
+                animation-timing-function: ease-out;
             }
             .circular_image a {
                 margin:0;
@@ -305,6 +275,18 @@
             main .topbar > ul li img:hover {
                 cursor: pointer;
             } */
+            main .topbar > ul li h1 {
+                font-size: 40px;
+            }
+            main .topbar > ul li, a {
+                padding: 10px;
+                color: white;
+                text-decoration: none;
+            }
+            main .topbar > ul li a:hover {
+                color: #1b9bff;
+            }
+            
             main .main-body {
                 /* background: linear-gradient(whitesmoke, #E6E6E6); */
                 padding: 80px 20px 0 20px;
@@ -320,11 +302,15 @@
                 100% {transform: none;}
             }
             .data {
-                width: 90%;
-                background: white;
+                width: 70%;
+                /* background: rgb(48,49,52); */
+                background-color: rgb(239,243,246);
                 min-width: 625px;
                 margin: auto;
+                position: relative;
+                bottom: 130px;
                 z-index: 2;
+                height: auto;
                 border-radius: 6px;
                 box-shadow: 0 7px 20px rgba(50, 50, 93, .2);
                 animation-name: data-anim;
@@ -333,21 +319,24 @@
             }
             .top-menu {
                 width: 100%;
+                background: #293A80;
                 border-radius: 6px 6px 0 0;
-                background: rgb(5,29,54);
                 padding: 20px 40px;
+                border-bottom: 1px solid #1b9bff;
             }
             .data .top-menu ul{
+                list-style: none;
                 display: flex;
-                flex-direction: row;
-                flex-wrap: wrap;
                 width: 100%;
+                flex-direction: row;
                 text-align: center;
             }
+            .top-menu .ul-div {
+                width: 60%;
+                margin: auto;
+            }
             .top-menu ul li {
-                /* padding: 20px 30px; */
-                /* margin: 8px; */
-                width: 25%;
+                width: 33%;
             }
             .top-menu ul li a {
                 text-decoration: none;
@@ -362,27 +351,6 @@
                 color: #1b9bff;
                 border-bottom: 2px solid white;
             }
-            .data form {
-                width: 80%;
-                margin: auto;
-                display: flex;
-                flex-direction: column;
-                /* margin: 0 40px 0 40px; */
-                border-radius: 6px;
-                /* position: relative;
-                bottom: 80px; */
-                /* height: 860px; */
-                /* width: 100%; */
-                /* max-width: 1000px; */
-                /* min-width: 800px; */
-                align-items: center;
-                /* background-color: #A2DBFA; */
-                padding: 80px 0 80px 0;
-                /* background-color: #373737; */
-                /* padding-bottom: 80px; */
-                /* background: #181818; */
-                /* background: rgba(24,24,24, 0.8); */
-            }
             .data:hover {
                 box-shadow: 0 10px 30px rgba(50, 50, 93, .2);
                 transition: 500ms;
@@ -391,7 +359,7 @@
                 font-size: 3rem;
                 margin-bottom: 40px;
                 /* color: black; */
-                color: rgb(50,50,93);
+                color: white;
             }
             .item{
                 padding: 20px;
@@ -400,7 +368,7 @@
                 /* margin: 15px; */
                 border: none;
                 outline: none;                
-                color: rgb(96,108,138);
+                color: whitesmoke;
                 /* background-color: #F1F3F4; */
                 /* background-color: #B8C1C6; */
             }
@@ -415,6 +383,7 @@
                 font-family: 'Montserrat', sans-serif;
                 outline: none;
                 float: right;
+                color: grey;
                 /* background-color: #F1F3F4; */
                 /* background-color: #B8C1C6; */
                 /* background-color: #373737; */
@@ -427,11 +396,11 @@
                 width: 60%;
                 /* margin: 15px; */
                 border: none;
-                border-bottom: 2px solid grey;
+                border-bottom: 2px solid whitesmoke;
                 font-family: 'Montserrat', sans-serif;
                 outline: none;
                 float: right;
-                color: black;
+                color: white;
                 /* background-color: #F1F3F4; */
                 /* background-color: #B8C1C6; */
                 /* background-color: #373737; */
@@ -460,12 +429,12 @@
                 /* background-color: #32AEF2; */
                 /* background: #181818; */
                 background: none;
-                color: rgb(50,50,93);
+                color: white;
                 font-size: 20px;
                 font-family: 'Montserrat', sans-serif;
                 text-transform: uppercase;
                 text-align: center;
-                border: 1px solid rgb(50,50,93);
+                border: 1px solid whitesmoke;
                 outline: none;
                 border-radius: 6px;
             }
@@ -484,11 +453,11 @@
                 /* background-color: #32AEF2; */
                 /* background: #181818; */
                 background: none;
-                color: rgb(50,50,93);
+                color: white;
                 font-size: 20px;
                 font-family: 'Montserrat', sans-serif;
                 text-transform: uppercase;
-                border: 1px solid rgb(50,50,93);
+                border: 1px solid whitesmoke;
                 outline: none;
                 border-radius: 6px;
             }
@@ -500,6 +469,8 @@
                 border: 1px solid #1b9bff;
                 transition: 0.3s;
             }
+            
+
 
             /* footer */
             footer {
@@ -588,7 +559,7 @@
                 background-color: rgba(255,255,255,0.2);
                 margin:0 10px 10px 0;
                 text-align: center;
-                line-height: 40px;
+                /* line-height: 40px; */
                 border-radius: 50%;
                 color: #ffffff;
                 transition: all 0.5s ease;
@@ -610,6 +581,7 @@
                     width: 100%;
                 }
             }
+            
 
         </style>
             <header class="myheader" id="header">
@@ -617,86 +589,361 @@
                 <label for="check" class="checkbtn">
                     <i class="fa fa-bars"></i>
                 </label>
-                <a class="logo" href="index.php">Music<span style="color:#1b9bff;">STORE</span>&trade;<sub> Seller</sub></a>
+                <a class="logo" href="index.php">Music<span style="color:#1b9bff;">STORE</span>&trade;</a>
                 <ul class="nav-list">
                     <li><a class="active" href="index.php">Home</a></li>
                     <li><a class="active" href="#">Orders</a></li>
                     <li><a class="active" href="cart.php">Cart</a></li>
                     <li><a class="active" href="useraccount.php"><?=$_SESSION['user_name']?></a></li>
+                    <?php 
+                        if($_SESSION['is_seller'] == 1) {
+                    ?>
                     <li><a class="active" href="selleraccount.php"><?=$_SESSION['company_name']?></a></li>
+                    <?php
+                        }
+                    ?>
                 </ul>                
         </header>
             <main id="top">
                 <div class="user-info">
                     <div class="topbar">
-                        <div class="topbar-bg">
-                        </div>
-                        <div class="topbar-container">
-                            <div class="img-container">
+                        <ul>
+                            <li>
                                 <div class="circular_image">
                                     <?php
-                                        if($_SESSION['seller_dp'] != null) {
+                                        if($_SESSION['img_name'] != null) {
                                     ?>
-                                    <a href="updateseller.php" title="Click to change dp"><img src="../private/uploads/<?=$_SESSION['seller_dp']?>" alt="DP"></a>
+                                    <a href="update.php" title="Click to change dp"><img src="../private/uploads/<?=$_SESSION['img_name']?>" alt="DP"></a>
                                     <?php
                                         } else {
                                     ?>
-                                    <a href="updateseller.php" title="Click to upload dp"><img src="images/seller-dp.png" alt="DP"></a>
+                                    <a href="update.php" title="Click to upload dp"><img src="images/user-profile-img.png" alt="DP"></a>
                                     <?php
                                         }
                                     ?>
                                 </div>
-                            </div>
-                            <ul class="outer-ul">
-                                <li><h1><?=$_SESSION['company_name']?></h1></li>
-                                <li><h4><?=$_SESSION['email']?></h4></li>
-                                <li><h4><?=$_SESSION['seller_contact']?></h4></li>
-                            </ul>
-                            <div class="btn-container">
-                                <h3 class="sign-out" ><a href="logout.php">Sign out</a><h3>
-                            </div>
-                        </div>
+                            </li>
+                            <li><h1><?=$_SESSION['user_name']?></h1></li>
+                            <li><h4><?=$_SESSION['email']?></h4></li>
+                            <li>
+                                <?php
+                                    if($_SESSION['contact'] != null) {
+                                ?>
+                                <h4><?=$_SESSION['contact']?></h4>
+                                <?php
+                                     }
+                                ?>
+                            </li>
+                            <li><h3><a href="logout.php">Sign out</a><h3></li>
+                        </ul>
                     </div>
+                    <style>
+                        .inst-list {
+                            width: 100%;
+                            padding: 40px;
+                        }
+                        .empty-cart {
+                            text-align: center;
+                            color: grey;
+                        }
+                        .empty-cart h1 {
+                            font-size: 55px;
+                            padding: 20px;
+                        }
+                        .place-order {
+                            width: 90%;
+                            margin: auto;
+                            padding: 20px;
+                            text-align: center;
+                        }
+                        .place-order .no-order {
+                            padding: 12px 30px;
+                            width: 40%;
+                            margin: auto;
+                            margin-top: 20px;
+                            margin-bottom: 20px;
+                            /* background-color: #32AEF2; */
+                            /* background: #181818; */
+                            background: grey;
+                            color: white;
+                            font-size: 20px;
+                            font-family: 'Montserrat', sans-serif;
+                            text-transform: uppercase;
+                            outline: none;
+                            border-radius: 6px;
+                        }
+                        .can-order a {
+                            padding: 12px 30px;
+                            color: black;
+                            font-size: 20px;
+                            border: 1px solid black;
+                            outline: none;
+                            border-radius: 6px;
+                            background: none;
+                            font-family: 'Montserrat', sans-serif;
+                            text-transform: uppercase;
+                            width: 100%;
+                        }
+                        .place-order .can-order { 
+                            width: 40%;
+                            margin: auto;
+                            margin-top: 20px;
+                            margin-bottom: 20px;
+                            /* background-color: #32AEF2; */
+                            /* background: #181818; */                           
+                        }
+                        .place-order .can-order a:hover {
+                            cursor: pointer;
+                            color: white;
+                            /* background-color: #195aaf; */
+                            background: #1b9bff;
+                            border: 1px solid #1b9bff;
+                            transition: 0.3s;
+                        }
+                        .product-item {
+                            display: flex;
+                            flex-direction: row;
+                            width: 90%;
+                            margin: auto;
+                            margin-top: 30px;
+                            margin-bottom: 30px;
+                            border-radius: 6px;
+                            background: white;
+                            box-shadow: 0 7px 10px rgba(50, 50, 93, .2);
+                            /* border: 1px solid grey; */
+                            /* background-color: rgb(239,243,246); */
+                            /* box-shadow: white -10px -10px 20px 5px, rgb(24, 24, 24, 0.2) 10px 10px 20px 5px ; */
+                        }
+                        .buy-cart-inst-img-cont  {
+                            padding: 30px;
+                            width: 40%;
+                            /* min-width: 470px; */
+                        }
+                        .main-square-img {
+                            /* margin: 10px; */
+                            width: 100%;
+                            height: 300px;
+                            text-align: center;
+                            overflow: hidden;
+                            border: 1px solid #1b9bff;
+                        }
+                        .main-square-img img{
+                            /* clip-path: circle(); */
+                            max-width:100%;
+                            max-height:100%;
+                            vertical-align: middle;
+                            /* height: 100%; */
+                        }
+                        .hurry-up {
+                            width: 100%;
+                            text-align: left;
+                            padding: 10px;
+                            color: #4E9F3D;
+                        }
+                        .inst-details-buy-cart {
+                            width: 60%;
+                            padding: 30px;
+                        }
+                        .inst-details-buy-cart h1 {
+                            width: 100%;
+                            font-weight: 300;
+                            font-size: 38px;
+                            padding-bottom: 10px;
+                        }
+                        .sold-by {
+                            width: 100%;
+                            color: #1b9bff;
+                            font-weight: 200;
+                            font-size: 16px;
+                            text-align: right;
+                            padding-bottom: 10px;
+                        }
+                        .market-price {
+                            color: grey;
+                            font-size: 16px;
+                            font-weight: 200;
+                            padding: 40px 0 10px 0;
+                        }
+                        .og-price {
+                            /* color: red; */
+                            font-weight: 400;
+                            font-size: 22px;
+                            padding-bottom: 10px;
+                        }
+                        .you-save {
+                            font-weight: 400;
+                            font-size: 16px;
+                            padding-bottom: 10px;
+                        }
+                        .buy-cart-btns {
+                            display: flex;
+                            flex-direction: row;
+                            width: 100%;
+                            padding: 40px 0;
+                        }
+                        .buy-cart-btns form {
+                            width: 50%;
+                            padding: 0;
+                            text-align: center;
+                        }
+                        .sold-out {
+                            width: 80%;
+                            text-decoration: none;
+                            padding: 15px;
+                            background: #F90716;
+                            border: none;
+                            font-family: 'Montserrat', sans-serif;
+                            color: white;
+                            font-size: 18px;
+                            text-align:center;
+                            margin: auto;
+                            /* margin-top: 25px; */
+                            border-radius: 3px;
+                        }
+                        .sold-out:hover {
+                            cursor: pointer;
+                            background: #B85252;
+                            transition: 250ms linear;
+                        }
+                        .buy-btn {
+                            width: 80%;
+                            text-decoration: none;
+                            padding: 15px;
+                            background: #F3950D;
+                            border: none;
+                            font-family: 'Montserrat', sans-serif;
+                            color: white;
+                            font-size: 18px;
+                            text-align:center;
+                            margin: auto;
+                            /* margin-top: 25px; */
+                            border-radius: 3px;
+                        }
+                        .buy-btn:hover {
+                            cursor: pointer;
+                            background: rgb(187,103,54);
+                            transition: 250ms linear;
+                        }
+                        .cart-btn {
+                            text-decoration: none;
+                            width: 80%;
+                            padding: 15px;
+                            background: #3DB026;
+                            border: none;
+                            font-family: 'Montserrat', sans-serif;
+                            color: white;
+                            font-size: 18px;
+                            text-align:center;
+                            margin: auto;
+                            /* margin-top: 25px; */
+                            border-radius: 3px;
+                        }
+                        .cart-btn:hover {
+                            cursor: pointer;
+                            background: #369b22;
+                            transition: 250ms linear;
+                        }
+                    </style>
                     <div class="main-body">
                         <div class="data">
                             <div class="top-menu">
                                 <div class="ul-div">
                                     <ul>
-                                        <li><a class="active" href="selleraccount.php">Account</a></li>
-                                        <li><a href="instruments.php">Instruments</a></li>
-                                        <li><a href="#">Sales</a></li>
-                                        <li><a href="#">Reviews</a></li>
+                                        <li><a href="useraccount.php">My Account</a></li>
+                                        <li><a href="#">Orders</a></li>
+                                        <li><a class="active" href="#">Cart</a></li>
                                     </ul>
                                 </div>
                             </div>
-                            <form method="post" action="updateseller.php">
-                                <h2>Account details</h2>
-                                <p style='color:blue; font-size:14px'>Fill only those fields which you want to update.</p>
-                                <div class="item">
-                                    <label for="email">Email:</label>
-                                    <p class="fix-email" id="email" title="Cannot edit email"><?=$_SESSION['email']?></p>
+                            <div class="inst-list">
+                                <?php
+                                    if(count($inst_data) == 0) {
+                                ?>
+                                <div class="empty-cart">
+                                    <h1><i class="fa fa-shopping-cart"></i></h1>
+                                    <p>Your cart is empty.</p>
                                 </div>
-                                <div class="item">
-                                    <label for="username">Company Name:</label>
-                                    <input type="text" class="form-control" id="username" name="company_name" placeholder="Company Name" value="<?=$_SESSION['company_name']?>" maxlength="100" title="Company Name">
+                                <?php
+                                    } else {
+                                        $flag = 0;
+                                        for($i = 0; $i < count($inst_data); $i++) {
+                                            
+                                            if($inst_data[$i]->quantity == 0) {
+                                                $flag++;
+                                            } 
+                                ?>
+                                <div class="product-item">
+                                    <div class="buy-cart-inst-img-cont">
+                                        <div class="main-square-img">
+                                            <img src="../private/uploads/<?=$inst_data[$i]->inst_img?>" alt="Image">
+                                        </div>
+                                    </div>
+                                    <div class="inst-details-buy-cart">
+                                        <h1 style="text-transform: capitalize;"><?=$inst_data[$i]->inst_name?></h1>
+                                        <h3 class="sold-by">Sold by: <?=$inst_data[$i]->brand_name?></h3>
+                                        <h2 class="og-price">Price: <span style="color: red;">&#8377; <?=$inst_data[$i]->price?></h2>
+                                        <?php
+                                            if($inst_data[$i]->quantity > 0 && $inst_data[$i]->quantity <= 5) {
+                                        ?>
+                                        <div class="hurry-up">
+                                            <h3>Hurry up! Only <?=$inst_data[$i]->quantity?> pieces left.</h3>
+                                        </div>
+                                        <?php
+                                                }
+                                        ?>
+                                        <div class="buy-cart-btns">
+                                            <?php
+                                                if($inst_data[$i]->quantity == 0) {
+                                            ?>
+                                            <form action="productPage.php" method="get">
+                                                <input type="text" class="hidden-input" name="inst_id" value="<?=$inst_data[$i]->inst_id?>">
+                                                <input type="text" class="hidden-input" name="category" value="<?=$inst_data[$i]->category?>">
+                                                <input type="submit" class="sold-out" value="Sold out">
+                                            </form>
+                                            <form action="cart.php" method="post">
+                                                <input type="text" class="hidden-input" name="inst_id" value="<?=$inst_data[$i]->inst_id?>">
+                                                <input type="submit" class="cart-btn" value="Remove from cart">
+                                            </form>
+                                            <?php
+                                                } else {
+                                            ?>
+                                            <form action="productPage.php" method="">
+                                                <input type="text" class="hidden-input" name="inst_id" value="<?=$inst_data[$i]->inst_id?>">
+                                                <input type="text" class="hidden-input" name="category" value="<?=$inst_data[$i]->category?>">
+                                                <input type="submit" class="buy-btn" value="Buy now">
+                                            </form>
+                                            <form action="cart.php" method="post">
+                                                <input type="text" class="hidden-input" name="inst_id" value="<?=$inst_data[$i]->inst_id?>">
+                                                <input type="submit" class="cart-btn" value="Remove from cart">
+                                            </form>
+                                            <?php
+                                                }
+                                            ?>
+                                        </div>
+                                    </div>   
                                 </div>
-                                <div class="item">
-                                    <label for="contact">Contact:</label>
-                                    <input type="text" name="seller_contact" id="contact" class="form-control" placeholder="Contact" value="<?=$_SESSION['seller_contact']?>" maxlength="10" title="Contact">
+                                <?php 
+                                        }   
+                                        if($flag > 0) {
+                                ?>
+                                <div class="place-order">
+                                    <p class="no-order" title="Remove instruments from cart which are sold out.">Place order</p>
                                 </div>
-                                <div class="item">
-                                    <label for="addres">Address:</label>
-                                    <input type="text" name="seller_address" id="address" class="form-control" placeholder="Address" value="<?=$_SESSION['seller_address']?>" maxlength="250" title="Address">
+                                <?php 
+                                        } else {
+                                ?>
+                                <div class="place-order">
+                                    <p class="can-order"><a href="">Place order</a></p>
                                 </div>
-                                <div class="item">
-                                    <label for="pincode">PIN Code:</label>
-                                    <input type="text" name="seller_pin_code" id="pincode" class="form-control" placeholder="PIN Code" value="<?=$_SESSION['seller_pin_code']?>" maxlength="6" title="Pin code">
-                                </div>
-                                
-                                <input type="submit" class="submit-btn" value="Update" name="sellerupdate">
-                                <hr>
-                                <a href="#" class="deactivate">Deactivate Account</a>
-                            </form>
+                                <?php 
+                                        }
+                                ?>
+                            </div>
+                                <?php
+                                }
+                                ?>
+                            </div>
+                           
                         </div>
                     </div>
                 </div>

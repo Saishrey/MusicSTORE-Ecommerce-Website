@@ -2,6 +2,12 @@
 
     require "../private/autoload.php";
     
+    $guitar = "Guitar";
+    $piano = "Piano";
+    $keyboard = "Keyboard";
+    $drums = "Drums and Percussions";
+    $wind = "Wind instruments";
+
     $user_name = "";
     if(isset($_SESSION['user_name'])) {
         $user_name = $_SESSION['user_name'];
@@ -551,19 +557,19 @@
                             }
                         ?>
                         <p style='color:blue; font-size:14px'>Fill only those fields which you want to update.</p>
-                        <input type="text" class="form-control" name="address" placeholder="Address" value="<?=$_SESSION['address']?>" maxlength="250" required="required">
+                        <input type="text" class="form-control" name="address" placeholder="Address" maxlength="250" required="required">
                         <?php
                             if(isset($error_stmnt) && $error_num == 2 && $error_stmnt != "") {
                                 echo $error_stmnt;
                             }
                         ?>
-                        <input type="text" name="pin_code" class="form-control" placeholder="PIN Code" value="<?=$_SESSION['pin_code']?>" maxlength="6" required="required">
+                        <input type="text" name="pin_code" class="form-control" placeholder="PIN Code" maxlength="6" required="required">
                         <?php
                                 if(isset($error_stmnt) && $error_num == 3 && $error_stmnt != "") {
                                     echo $error_stmnt;
                                 }
                         ?>
-                        <input type="text" name="contact" class="form-control" placeholder="Contact" value="<?=$_SESSION['contact']?>" maxlength="10" required="required">
+                        <input type="text" name="contact" class="form-control" placeholder="Contact" maxlength="10" required="required">
                         <?php
                                 if(isset($error_stmnt) && $error_num == 4 && $error_stmnt != "") {
                                     echo $error_stmnt;
@@ -619,10 +625,11 @@
                         <div class="footer-col">
                             <p>shop</p>
                             <ul>
-                                <li><a href="#">guitars</a></li>
-                                <li><a href="#">keyboards</a></li>
-                                <li><a href="#">pianos</a></li>
-                                <li><a href="#">flutes</a></li>
+                                <li><a href="catalogue.php?category=<?=$guitar?>">guitars</a></li>
+                                <li><a href="catalogue.php?category=<?=$piano?>">pianos</a></li>
+                                <li><a href="catalogue.php?category=<?=$keyboard?>">keyboards</a></li>
+                                <li><a href="catalogue.php?category=<?=$drums?>">drums</a></li>
+                                <li><a href="catalogue.php?category=<?=$wind?>">wind</a></li>
                             </ul>
                         </div>
                         <div class="footer-col">

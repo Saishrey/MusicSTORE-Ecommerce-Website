@@ -440,20 +440,38 @@
             .footer-col ul li:not(:last-child){
                 margin-bottom: 10px;
             }
-            .footer-col ul li a{
+            .category-sbmt-btn {
+                background: none;
+                width: 100%;
+                text-align: left;
+                padding: 10px;
+                border: none;
+                font-size: 17px;
+                color: white;
+                font-family: 'Montserrat', sans-serif;
+                text-transform: uppercase;
+            }
+            .category-sbmt-btn:hover {
+                cursor: pointer;
+            }
+            .footer-col ul li a , .footer-col ul li .category-sbmt-btn {
                 font-size: 13px;
                 text-transform: capitalize;
                 color: #ffffff;
                 text-decoration: none;
                 font-weight: 300;
-                padding: 0;
                 color: #bbbbbb;
                 display: block;
+                margin: 0;
+                padding: 0;
                 transition: all 0.3s ease;
             }
-            .footer-col ul li a:hover{
+            .footer-col ul li a:hover, .footer-col ul li .category-sbmt-btn:hover{
                 color: #1b9bff;
                 padding-left: 8px;
+            }
+            .hidden-input {
+                display: none;
             }
             .footer-col .social-links a{
                 display: inline-block;
@@ -565,10 +583,36 @@
                     <div class="footer-col">
                         <p>shop</p>
                         <ul>
-                            <li><a href="#">guitars</a></li>
-                            <li><a href="#">keyboards</a></li>
-                            <li><a href="#">pianos</a></li>
-                            <li><a href="#">flutes</a></li>
+                        <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Guitar">
+                                    <input type="submit" class="category-sbmt-btn" value="Guitar">
+                                </form>
+                            </li>
+                            <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Piano">
+                                    <input type="submit" class="category-sbmt-btn" value="Piano">
+                                </form>
+                            </li>
+                            <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Keyboard">
+                                    <input type="submit" class="category-sbmt-btn" value="Keyboard">
+                                </form>
+                            </li>
+                            <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Drums and Percussions">
+                                    <input type="submit" class="category-sbmt-btn" value="Drums">
+                                </form>
+                            </li>
+                            <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Wind instruments">
+                                    <input type="submit" class="category-sbmt-btn" value="Wind">
+                                </form>
+                            </li>
                         </ul>
                     </div>
                     <div class="footer-col">

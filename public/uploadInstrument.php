@@ -9,9 +9,13 @@
     $error = False;
     $error_num = 0;
 
+    $arr = null;
+
     if($_SERVER['REQUEST_METHOD'] == 'POST') {
         //something was posted
         // to check if model name matches pattern
+        $inst_id = "INST".get_random_string(20);
+
         $inst_name = trim($_POST['inst_name']);
         if(strlen($inst_name) != 0 && !preg_match("/^[a-zA-Z0-9 -.,]+$/", $inst_name) && !$error) {
             $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
@@ -33,17 +37,74 @@
         }
         $price = intval($price_str);
 
-       $category = $_POST['category'];
+        $category = $_POST['category'];
+
+        $quantity = intval($_POST['quantity']);
+
+        // retieve the image
+        $image = $_FILES['inst_img'];
+		$imageName = $image['name'];
+		$imageType = $image['type'];
+		$imageTmp_name = $image['tmp_name'];
+		$img_error = $image['error'];
+		$imageSize = $image['size'];
+
+		if(!$img_error){
+			if($imageSize <= 5242880){
+				$imageNewName = $inst_id."_img_".$imageName;
+				$destinationFolder = '../private/uploads/';
+				$allowed = array("png","jpg","jpeg","JPG","PNG","JPEG");
+				if(in_array(explode('/',$imageType)[1], $allowed)) {
+					if(move_uploaded_file($imageTmp_name, $destinationFolder.$imageNewName)){
+                        $arr['inst_img'] = $imageNewName;
+					}
+					else {
+							// header("Location: update.php?error=Make sure you have not any special characters in your file");
+                            $error = True;
+							echo "<script>
+								alert('Make sure you do not have any special characters in your file name.');
+								window.location.replace('uploadInstrument.php');
+								</script>";
+					}
+				}
+				else{
+					// header("Location: update.php?error=Please upload only png or jpg images");
+                    $error = True;
+					echo "<script>
+						alert('Images can be of the type [png, jpg, jpeg, JPG, PNG, JPEG].');
+						window.location.replace('uploadInstrument.php');
+						</script>";
+				}
+				
+			}else{
+				// header("Location: update.php?error=The size of image sould not increase 5mb");
+                $error = True;
+				echo "<script>
+					alert('The size of image should not increase 5MB.');
+					window.location.replace('uploadInstrument.php');
+					</script>";
+			}
+		}else{
+			// header("Location: update.php?error=NULL!");
+            $error = True;
+			echo "<script>
+				alert('Error uploading image.');
+				window.location.replace('uploadInstrument.php');
+				</script>";
+		}
+	
 
         if(!$error) {
 
             //save to database
-            $arr['inst_name'] = $inst_name;
+            $arr['brand_name'] = $_SESSION['company_name'];
+            $arr['inst_name'] = strtolower($inst_name);
             $arr['s_id'] = $_SESSION['seller_id'];
-            $arr['category'] = $category;
-            $arr['inst_id'] = "INST".get_random_string(20);
+            $arr['quantity'] = $quantity;
+            $arr['category'] = strtolower($category);
+            $arr['inst_id'] = $inst_id;
             $arr['price'] = $price;
-            $query = "insert into instrument (inst_id,s_id,inst_name,price,category) values (:inst_id,:s_id,:inst_name,:price,:category);";
+            $query = "insert into instrument (inst_id,s_id,inst_name,price,category,brand_name,inst_img,quantity) values (:inst_id,:s_id,:inst_name,:price,:category,:brand_name,:inst_img,:quantity);";
             $stmnt = $con->prepare($query);
             $stmnt->execute($arr);
 
@@ -360,7 +421,7 @@
                 /* padding-bottom: 80px; */
             }
             .data {
-                width: 70%;
+                width:90%;
                 background: white;
                 min-width: 625px;
                 margin: auto;
@@ -401,6 +462,8 @@
                 border-bottom: 2px solid white;
             }
             .data form {
+                width: 80%;
+                margin: auto;
                 display: flex;
                 flex-direction: column;
                 /* margin: 0 40px 0 40px; */
@@ -545,20 +608,38 @@
             .footer-col ul li:not(:last-child){
                 margin-bottom: 10px;
             }
-            .footer-col ul li a{
+            .footer-col ul li a , .footer-col ul li .category-sbmt-btn {
                 font-size: 13px;
                 text-transform: capitalize;
-                /* color: #ffffff; */
+                color: #ffffff;
                 text-decoration: none;
                 font-weight: 300;
-                padding: 0;
                 color: #bbbbbb;
                 display: block;
+                margin: 0;
+                padding: 0;
                 transition: all 0.3s ease;
             }
-            .footer-col ul li a:hover{
+            .footer-col ul li a:hover, .footer-col ul li .category-sbmt-btn:hover{
                 color: #1b9bff;
                 padding-left: 8px;
+            }
+            .category-sbmt-btn {
+                background: none;
+                width: 100%;
+                text-align: left;
+                padding: 10px;
+                border: none;
+                font-size: 17px;
+                color: white;
+                font-family: 'Montserrat', sans-serif;
+                text-transform: uppercase;
+            }
+            .category-sbmt-btn:hover {
+                cursor: pointer;
+            }
+            .hidden-input {
+                display:none;
             }
             .footer-col .social-links a{
                 display: inline-block;
@@ -645,7 +726,7 @@
                                     </ul>
                                 </div>
                             </div>
-                                <form action="" method="post">
+                                <form  method="post" enctype="multipart/form-data">
                                     <h2>Upload Instrument</h2>
                                     <div class="item">
                                         <label for="brand">Brand:</label>
@@ -670,14 +751,22 @@
                                         ?>
                                     </div>
                                     <div class="item">
+                                        <label for="price">Quantity:</label>
+                                        <input type="number" class="form-control" id="price" name="quantity" placeholder="Quantity" min="1" max="10" required="required">
+                                    </div>
+                                    <div class="item">
                                         <label for="category">Category:</label>
                                         <select name="category" id="category" class="form-control">
-                                            <option value="guitar">Guitar</option>
-                                            <option value="piano">Piano</option>
-                                            <option value="keyboard">Keyboard</option>
-                                            <option value="drums">Drums & Percussions</option>
-                                            <option value="wind">Wind instruments</option>
+                                            <option value="Guitar">Guitar</option>
+                                            <option value="Piano">Piano</option>
+                                            <option value="Keyboard">Keyboard</option>
+                                            <option value="Drums and Percussions">Drums & Percussions</option>
+                                            <option value="Wind instruments">Wind instruments</option>
                                         </select>
+                                    </div>
+                                    <div class="item">
+                                        <label for="img">Image:</label>
+                                        <input type="file" class="form-control" name="inst_img" id="img" required="required">
                                     </div>
                                     <hr>
                                     <input type="submit" class="submit-btn" value="Upload" name="upload-inst">
@@ -722,10 +811,36 @@
                     <div class="footer-col">
                         <p>shop</p>
                         <ul>
-                            <li><a href="#">guitars</a></li>
-                            <li><a href="#">keyboards</a></li>
-                            <li><a href="#">pianos</a></li>
-                            <li><a href="#">flutes</a></li>
+                        <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Guitar">
+                                    <input type="submit" class="category-sbmt-btn" value="Guitar">
+                                </form>
+                            </li>
+                            <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Piano">
+                                    <input type="submit" class="category-sbmt-btn" value="Piano">
+                                </form>
+                            </li>
+                            <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Keyboard">
+                                    <input type="submit" class="category-sbmt-btn" value="Keyboard">
+                                </form>
+                            </li>
+                            <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Drums and Percussions">
+                                    <input type="submit" class="category-sbmt-btn" value="Drums">
+                                </form>
+                            </li>
+                            <li>
+                                <form action="catalogue.php" method="get">
+                                    <input type="text" class="hidden-input" name="category" value="Wind instruments">
+                                    <input type="submit" class="category-sbmt-btn" value="Wind">
+                                </form>
+                            </li>
                         </ul>
                     </div>
                     <div class="footer-col">
