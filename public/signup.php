@@ -170,7 +170,8 @@
             body {
                 background-color: #ECEFF1;
                 /* background-color: #181818; */
-                background: url(images/large.jpg) no-repeat;
+                /* background: url(images/large.jpg) no-repeat; */
+                background: url(images/del_agent.jpg) no-repeat;
                 background-size: center;
                 font-family: 'Montserrat', sans-serif;
             }

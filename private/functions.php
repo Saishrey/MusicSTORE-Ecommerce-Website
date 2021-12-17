@@ -62,7 +62,7 @@
         $mail->Username='your_email_address'; // place your email address
         $mail->Password='your_password'; // place your password
 
-        $mail->setFrom('your_email_address', 'OTP Verification'); // place your email address
+        $mail->setFrom('your_email_address', 'MusicSTORE.in OTP Verification'); // place your email address
         $mail->addAddress($email);
 
         $mail->isHTML(true);
@@ -80,8 +80,65 @@
         if(!unlink($file_pointer)) { 
             echo "<script>
                 alert('Error deleting image.');
-                window.location.replace('../public/update.php');
+                window.location.replace('../public/index.php');
                 </script>";
         } 
+    }
+
+    function sendOrderPlacedEmail($email, $order_id, $delivery_date, $agent_contact) {     
+
+        require "Mail/phpmailer/PHPMailerAutoload.php";
+        $mail = new PHPMailer;
+    
+        $mail->isSMTP();
+        $mail->Host='smtp.gmail.com';
+        $mail->Port=587;
+        $mail->SMTPAuth=true;
+        $mail->SMTPSecure='tls';
+
+        $mail->Username='your_email_address'; // place your email address
+        $mail->Password='your_password'; // place your password
+
+        $mail->setFrom('your_email_address', 'MusicSTORE.in'); // place your email address
+        $mail->addAddress($email);
+
+        $mail->isHTML(true);
+        $mail->Subject='Your MusicSTORE order '.$order_id;
+
+        $mail->Body = "<p>Your package will be delivered on <br>".$delivery_date."<br>
+                        by our MusicSTORE Delivery Agent (Phone: ".$agent_contact.").</p>
+                        <br><br>
+                        To ensure your safety, the Delivery Agent will drop the package at your doorstep
+                        , ring the doorbell and then move back 2 meters while waiting for you to collect your package.
+                        If you are in containment zone, the agent will call you and request you to collect your package from the nearest
+                        accessible point while following the same No-Contact delivery process.";
+
+        return $mail->send();
+    }
+
+    function sendDeliveredEmail($email, $name) {     
+
+        require "Mail/phpmailer/PHPMailerAutoload.php";
+        $mail = new PHPMailer;
+    
+        $mail->isSMTP();
+        $mail->Host='smtp.gmail.com';
+        $mail->Port=587;
+        $mail->SMTPAuth=true;
+        $mail->SMTPSecure='tls';
+
+        $mail->Username='your_email_address'; // place your email address
+        $mail->Password='your_password'; // place your password
+
+        $mail->setFrom('your_email_address', 'MusicSTORE.in'); // place your email address
+        $mail->addAddress($email);
+
+        $mail->isHTML(true);
+        $mail->Subject='Delivered: Your MusicSTORE package has been delivered.';
+
+        $mail->Body = "<p>Hi ".$name.",<br>
+                        Your package has been delivered!</p>";
+
+        return $mail->send();
     }
 ?>

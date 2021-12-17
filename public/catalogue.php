@@ -497,7 +497,7 @@
                             <?php
                                 }
                             ?>
-                            <li><a href="#">Orders</a></li>
+                            <li><a href="useraccount.php?orders=true">Orders</a></li>
                             <li><a href="cart.php">Cart</a></li>
                             <hr>
                             <li><a href="logout.php">Sign out</a></li>
@@ -755,7 +755,7 @@
                             while($count < 3 && $i < $max) {
                         ?>
 
-                        <a class="main-product" href="productPage.php?inst_id=<?=$inst_data[$i]->inst_id?>&category=<?=$inst_data[$i]->category?>">
+                        <a class="main-product" href="productPage.php?inst_id=<?=$inst_data[$i]->inst_id?>&category=<?=$inst_data[$i]->category?>" target="_blank">
                             <div class="prod-info" class="wow">
                                
                                 <h1><?=$inst_data[$i]->inst_name?></h1>
@@ -822,8 +822,14 @@
                                 <?php
                                     }
                                 ?>
-                                <li><a href="#">Agent</a></li>
-                                <li><a href="#">Admin</a></li>
+                                <?php
+                                    if(!isset($_SESSION['user_id'])) {
+                                ?>
+                                    <li><a href="login.php?agentLogin=true">Agent</a></li>
+                                <?php
+                                    }
+                                ?>
+                              
                             </ul>
                         </div>
                         <div class="footer-col">

@@ -75,7 +75,8 @@
                 background-color: #ECEFF1;
                 /* background-color: #181818; */
                 /* background: rgba(24,24,24, 0.8); */
-                background: url(images/large.jpg) no-repeat;
+                /* background: url(images/large.jpg) no-repeat; */
+                background: url(images/del_agent.jpg) no-repeat;
                 background-size: center;
                 font-family: 'Montserrat', sans-serif;
             }

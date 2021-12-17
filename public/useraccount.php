@@ -12,6 +12,8 @@
 
     $error = False;
 
+    $flag=0;
+
     if(isset($_POST['user_name'])) {
         // to check if username matches pattern
         $user_name = trim($_POST['user_name']);
@@ -141,6 +143,18 @@
 
         header("Location: useraccount.php");
         die;
+    } else if(isset($_GET['orders']) && $_GET['orders'] == 'true') {
+        // fetch all orders 
+        $arr['c_id'] = $_SESSION['user_id'];
+        $query_orders = "select * from orders inner join ordered_instrument on orders.order_id = ordered_instrument.o_id inner join agent on orders.delivery_agent_id = agent.agent_id where orders.cust_id = :c_id order by is_delivered, order_date desc;";
+        $stmnt_orders= $con->prepare($query_orders);
+        $check_orders = $stmnt_orders->execute($arr);
+
+        if($check_orders) {
+            $orders_array = $stmnt_orders->fetchAll(PDO::FETCH_OBJ);  //FETCH_ASSOC for array
+
+        }
+        $flag = 1;
     }
 
     $arr['c_id'] = $_SESSION['user_id'];
@@ -643,7 +657,7 @@
                 <a class="logo" href="index.php">Music<span style="color:#1b9bff;">STORE</span>&trade;</a>
                 <ul class="nav-list">
                     <li><a class="active" href="index.php">Home</a></li>
-                    <li><a class="active" href="#">Orders</a></li>
+                    <li><a class="active" href="useraccount.php?orders=true">Orders</a></li>
                     <li><a class="active" href="cart.php">Cart</a></li>
                     <li><a class="active" href="useraccount.php"><?=$_SESSION['user_name']?></a></li>
                     <?php 
@@ -688,106 +702,21 @@
                             <li><h3><a href="logout.php">Sign out</a><h3></li>
                         </ul>
                     </div>
+            <?php
+                if($flag == 0) {
+            ?>
                     <div class="main-body">
                         <div class="data">
                             <div class="top-menu">
                                 <div class="ul-div">
                                     <ul>
                                         <li><a class="active" href="useraccount.php">My Account</a></li>
-                                        <li><a href="#">Orders</a></li>
+                                        <li><a href="useraccount.php?orders=true">Orders</a></li>
                                         <li><a href="cart.php">Cart</a></li>
                                     </ul>
                                 </div>
                             </div>
-                            <!-- <form method="post" action="updateseller.php">
-                                <h2>Account details</h2>
-                                <p style='color:orange; font-size:14px'>Fill only those fields which you want to update.</p>
-                                <div class="item">
-                                    <label for="email">Email:</label>
-                                    <p class="fix-email" style="color:#grey;" id="email" title="Cannot edit email"><?=$_SESSION['email']?></p>
-                                </div>
-                                <div class="item">
-                                    <label for="username">Username:</label>
-                                    <input type="text" class="form-control" id="username" name="user_name" placeholder="Username" value="<?=$_SESSION['user_name']?>" maxlength="20" title="Username">
-                                </div>
-                                <div class="item">
-                                    <label for="contact">Contact:</label>
-                                    <input type="text" name="contact" id="contact" class="form-control" placeholder="Contact" value="<?=$_SESSION['contact']?>" maxlength="10" title="Contact">
-                                </div>
-                                <div class="item">
-                                    <label for="addres">Address:</label>
-                                    <input type="text" name="address" id="address" class="form-control" placeholder="Address" value="<?=$_SESSION['address']?>" maxlength="250" title="Address">
-                                </div>
-                                <div class="item">
-                                    <label for="pincode">PIN Code:</label>
-                                    <input type="text" name="pin_code" id="pincode" class="form-control" placeholder="PIN Code" value="<?=$_SESSION['pin_code']?>" maxlength="6" title="Pin code">
-                                </div>
-                                
-                                <input type="submit" class="submit-btn" value="Update" name="update">
-                                <hr>
-                                <a href="#" class="deactivate">Deactivate Account</a>
-                            </form> -->
-                            <div class="account-details">
-                                <h2>Account details</h2>
-                                <p style='color:orange; font-size:14px'>Fill only those fields which you want to update.</p>
-                                <div class="item">
-                                    <h3>Email:</h3>
-                                    <p class="fix-email" style="color:#grey;" id="email" title="Cannot edit email"><?=$_SESSION['email']?></p>
-                                </div>
-                                <form action="useraccount.php" method="post">
-                                <div class="item">
-                                    <h3>Username:</h3>
-                                    <input type="text" class="form-control" id="username" name="user_name" placeholder="Username" value="<?=$_SESSION['user_name']?>" maxlength="20" title="Username">
-                                    <div class="update-submit">
-                                        <input type="submit" class="submit-btn" value="Update" name="update">
-                                    </div>    
-                                </div>
-                                </form>   
-                                <form action="useraccount.php" method="post">
-                                <div class="item">
-                                    <h3>Contact:</h3>
-                                    <input type="text" name="contact" id="contact" class="form-control" placeholder="Contact" value="<?=$_SESSION['contact']?>" maxlength="10" title="Contact">
-                                    <div class="update-submit">
-                                        <input type="submit" class="submit-btn" value="Update" name="update">
-                                    </div>  
-                                </div>
-                                </form>
-                                <?php
-                                    if(isset($cust_data) && count($cust_data) > 0) {
-                                        for($i = 0; $i < count($cust_data); $i++) {
-                                ?>
-                                <div class="address">
-                                    <form>
-                                        <h3>Address <?=$i+1?></h3>
-                                        <div class="item">
-                                            <h3>Locality:</h3>
-                                            <p class="fix-email" style="color:#grey; text-align: left;" id="email" ><?=$cust_data[$i]->locality?></p>
-                                        </div>
-                                        <div class="item">
-                                            <h3>City:</h3>
-                                            <p class="fix-email" style="color:#grey; text-align: left;" id="email" ><?=$cust_data[$i]->city?></p>
-                                        </div>
-                                        <div class="item">
-                                            <h3>State:</h3>
-                                            <p class="fix-email" style="color:#grey; text-align: left;" id="email" ><?=$cust_data[$i]->state?></p>
-                                        </div>
-                                        <div class="item">
-                                            <h3>Country:</h3>
-                                            <p class="fix-email" style="color:#grey; text-align: left;" id="email" ><?=$cust_data[$i]->country?></p>
-                                        </div>
-                                        <div class="item">
-                                            <h3>PIN Code:</h3>
-                                            <p class="fix-email" style="color:#grey; text-align: left;" id="email" ><?=$cust_data[$i]->pin_code?></p>
-                                        </div> 
-                                        <div class="sbmt">
-                                            <a class="add-address" href="useraccount.php?remove_address=<?=$cust_data[$i]->address_id?>">Remove address</a>
-                                        </div>
-                                    </form>
-                                </div>
-                                <?php
-                                        }
-                                    }
-                                ?>
+                            <div class="account-details">                                
                                 <?php
                                     if(isset($_GET['add_address']) && $_GET['add_address'] == 'true') {
                                 ?>
@@ -857,18 +786,260 @@
                                             <input type="submit" class="submit-btn" value="Confirm" name="confirm">
                                         </div>
                                     </form>
+                                    <p style="text-align: center; padding: 20px;"><a class="add-address"  href="useraccount.php">Cancel</a></p> 
                                 </div>
                                 <?php
                                     } else {
                                 ?>
-                                <a class="add-address" href="useraccount.php?add_address=true">Add address</a>
+                                <h2>Account details</h2>
+                                <p style='color:orange; font-size:14px'>Fill only those fields which you want to update.</p>
+                                <div class="item">
+                                    <h3>Email:</h3>
+                                    <p class="fix-email" style="color:#grey;" id="email" title="Cannot edit email"><?=$_SESSION['email']?></p>
+                                </div>
+                                <form action="useraccount.php" method="post">
+                                <div class="item">
+                                    <h3>Username:</h3>
+                                    <input type="text" class="form-control" id="username" name="user_name" placeholder="Username" value="<?=$_SESSION['user_name']?>" maxlength="20" title="Username">
+                                    <div class="update-submit">
+                                        <input type="submit" class="submit-btn" value="Update" name="update">
+                                    </div>    
+                                </div>
+                                </form>   
+                                <form action="useraccount.php" method="post">
+                                <div class="item">
+                                    <h3>Contact:</h3>
+                                    <input type="text" name="contact" id="contact" class="form-control" placeholder="Contact" value="<?=$_SESSION['contact']?>" maxlength="10" title="Contact">
+                                    <div class="update-submit">
+                                        <input type="submit" class="submit-btn" value="Update" name="update">
+                                    </div>  
+                                </div>
+                                </form>
+                                <?php
+                                    if(isset($cust_data) && count($cust_data) > 0) {
+                                        for($i = 0; $i < count($cust_data); $i++) {
+                                ?>
+                                <div class="address">
+                                    <form>
+                                        <h3>Address <?=$i+1?></h3>
+                                        <div class="item">
+                                            <h3>Locality:</h3>
+                                            <p class="fix-email" style="color:#grey; text-align: left;" id="email" ><?=$cust_data[$i]->locality?></p>
+                                        </div>
+                                        <div class="item">
+                                            <h3>City:</h3>
+                                            <p class="fix-email" style="color:#grey; text-align: left;" id="email" ><?=$cust_data[$i]->city?></p>
+                                        </div>
+                                        <div class="item">
+                                            <h3>State:</h3>
+                                            <p class="fix-email" style="color:#grey; text-align: left;" id="email" ><?=$cust_data[$i]->state?></p>
+                                        </div>
+                                        <div class="item">
+                                            <h3>Country:</h3>
+                                            <p class="fix-email" style="color:#grey; text-align: left;" id="email" ><?=$cust_data[$i]->country?></p>
+                                        </div>
+                                        <div class="item">
+                                            <h3>PIN Code:</h3>
+                                            <p class="fix-email" style="color:#grey; text-align: left;" id="email" ><?=$cust_data[$i]->pin_code?></p>
+                                        </div> 
+                                        <div class="sbmt">
+                                            <a class="add-address" href="useraccount.php?remove_address=<?=$cust_data[$i]->address_id?>"><i class="fa fa-trash" aria-hidden="true"></i> Remove address</a>
+                                        </div>
+                                    </form>
+                                </div>
+                                <?php
+                                        }
+                                    }
+                                ?>
+                                <a class="add-address" href="useraccount.php?add_address=true"><i class="fa fa-plus"></i> Add address</a>
                                 <?php
                                     }
                                 ?>
                             </div>
                         </div>
                     </div>
+            <?php
+                } else if($flag == 1) {
+            ?>
+              <div class="main-body">
+                        <div class="data">
+                            <div class="top-menu">
+                                <div class="ul-div">
+                                    <ul>
+                                        <li><a href="useraccount.php">My Account</a></li>
+                                        <li><a class="active" href="useraccount.php?orders=true">Orders</a></li>
+                                        <li><a href="cart.php">Cart</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <style>
+                                .empty-cart {
+                                    text-align: center;
+                                    color: grey;
+                                }
+                                .empty-cart h1 {
+                                    font-size: 55px;
+                                    padding: 20px;
+                                }
+                                .orders-container {
+                                    padding: 40px 0;
+                                }
+                                .inst-container {
+                                    display: flex;
+                                    width: 90%;
+                                    flex-direction: row;
+                                    background: rgb(239,243,246);
+                                    margin: 40px auto;
+                                    border-radius: 6px;
+                                    box-shadow: white -10px -10px 20px 5px, rgb(24, 24, 24, 0.2) 10px 10px 20px 5px ;
+                                }
+                            
+                                .inst-count {
+                                    margin: auto;
+                                    text-align: center;
+                                    padding: 20px;
+                                }
+                                .buy-cart-inst-img-cont  {
+                                    padding: 30px;
+                                    width: 30%;
+                                    /* min-width: 470px; */
+                                }
+                                .main-square-img {
+                                    /* margin: 10px; */
+                                    width: 100%;
+                                    height: 250px;
+                                    text-align: center;
+                                    overflow: hidden;
+                                    border: 1px solid #1b9bff;
+                                }
+                                .main-square-img img{
+                                    /* clip-path: circle(); */
+                                    max-width:100%;
+                                    max-height:100%;
+                                    vertical-align: middle;
+                                    /* height: 100%; */
+                                }
+                                .hurry-up {
+                                    width: 100%;
+                                    text-align: left;
+                                    padding: 10px;
+                                    color: #4E9F3D;
+                                }
+                                .sub-div > ul {
+                                    list-style: none;
+                                    margin: auto;
+                                    display: block;
+                                    font-size: 18px;
+                                }
+                                .sub-div > ul li {
+                                    padding: 10px 10px 10px 0;
+                                    color: #000D6B;
+                                }
+                                .inst-details-buy-cart {
+                                    width: 70%;
+                                    padding: 30px;
+                                    background: none;
+                                }
+                                .inst-details-buy-cart h1 {
+                                    width: 100%;
+                                    font-weight: 300;
+                                    font-size: 38px;
+                                    padding-bottom: 10px;
+                                }
+                                .inst-details-buy-cart h1 a {
+                                    color: black;
+                                }
+                                .inst-details-buy-cart h1 a:hover {
+                                    color: purple;
+                                    text-decoration: underline;
+                                }
+                                .sold-by {
+                                    width: 100%;
+                                    color: #1b9bff;
+                                    font-weight: 200;
+                                    font-size: 16px;
+                                    text-align: center;
+                                    padding-bottom: 10px;
+                                }
+                                .market-price {
+                                    color: grey;
+                                    font-size: 16px;
+                                    font-weight: 200;
+                                    padding: 40px 0 10px 0;
+                                }
+                                .og-price {
+                                    /* color: red; */
+                                    font-weight: 400;
+                                    font-size: 22px;
+                                    padding-bottom: 10px;
+                                }
+                                .you-save {
+                                    font-weight: 400;
+                                    font-size: 16px;
+                                    padding-bottom: 10px;
+                                }
+                            </style>
+                            <div class="orders-container">
+                            <?php
+                                if(count($orders_array) == 0 ) {
+                            ?>
+                            <div class="empty-cart">
+                            <h1><i class="fa fa-truck"></i></i></h1>
+                                <p>You have no orders.</p>
+                            </div>
+                            <?php
+                                } else {
+                            ?>
+                            <p class="inst-count">Number of orders: <?=count($orders_array)?></p>
+                            
+                            <?php
+                                for($i = 0; $i < count($orders_array); $i++) {
+                            ?>
+                            <div class="inst-container" id="inst-container">
+                                <div class="buy-cart-inst-img-cont">
+                                    <div class="main-square-img">
+                                        <img src="../private/uploads/<?=$orders_array[$i]->i_img_name?>" alt="Image">
+                                    </div>
+                                </div>
+                                <div class="inst-details-buy-cart">
+                                    <h1 style="text-transform: capitalize;"><a href="productPage.php?inst_id=<?=$orders_array[$i]->i_id?>&category=<?=$orders_array[$i]->i_category?>" target="_blank"><?=$orders_array[$i]->i_name?></a></h1>
+                                    <h3 class="sold-by">Sold by: <?=$orders_array[$i]->i_brand_name?></h3>     
+                                    <div class="price-and-buy">
+                                        <div class="sub-div">
+                                            <h2>Price: <span style="color: red;">&#8377; <?=$orders_array[$i]->i_price?></span> </h2>
+                                            <ul>
+                                                <li> <p>Order id: <span style="color: grey;"><?=$orders_array[$i]->order_id?></span></p> </li>
+                                                <?php
+                                                    if($orders_array[$i]->is_delivered == 0) {
+                                                ?>
+                                                <li><p>Your package will be delivered on <span style="color: #4E9F3D;"><?=$orders_array[$i]->delivery_date?></span>
+                                                        by our MusicSTORE Delivery Agent (Phone: +91-<?=$orders_array[$i]->agent_contact?>).</p></li>
+                                                <?php
+                                                    } else {
+                                                ?>
+                                                <li><p><span style="color: #4E9F3D;">Delivered on <?=$orders_array[$i]->delivered_date?> <i class="fa fa-check-circle"></i></span></p></li>
+                            
+                                                <?php
+                                                    }
+                                                ?>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>   
+                            </div>
+                            <?php
+                                        }
+                                    } 
+                            ?>
+                            </div>
+                            
+                        </div>
+
+            <?php
+                }
+            ?>
                 </div>
+            </div>
         </main>
         <style>
             /* footer */
@@ -999,8 +1170,7 @@
                             <?php
                                 }
                             ?>
-                            <li><a href="#">Agent</a></li>
-                            <li><a href="#">Admin</a></li>
+                           
                         </ul>
                     </div>
                     <div class="footer-col">

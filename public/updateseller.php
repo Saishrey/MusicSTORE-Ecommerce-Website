@@ -556,8 +556,8 @@
                         <ul>
                             <li><a href="useraccount.php">Customer</a></li>
                             <li><a href="selleraccount.php">Seller</a></li>
-                            <li><a href="#">Agent</a></li>
-                            <li><a href="#">Admin</a></li>
+                
+
                         </ul>
                     </div>
                     <div class="footer-col">

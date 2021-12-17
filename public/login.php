@@ -3,11 +3,13 @@
     require "../private/autoload.php";
     
     $email = "";
+    $agent_id = '';
+    $agent_pin = '';
     $error_stmnt = "";
     $error_num = 0;
     $error = False;
 
-    if($_SERVER["REQUEST_METHOD"] == "POST") {
+    if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['email'])) {
         //something was posted
         $email = $_POST['email'];
         if(!preg_match("/^[\w\-]+@[\w\-]+.[\w\-]+$/", $email) && !$error) {
@@ -52,7 +54,7 @@
                         $_SESSION['img_name'] = $data->img_name;
                         $_SESSION['is_seller'] = $data->is_seller;
 
-                        if($_SESSION['email'] == "dbmsbrdrs@gmail.com") {
+                        if($_SESSION['email'] == "your_admin_email") {  // place your admin email
                             header("Location: adminPage.php");
                             die;
                         }
@@ -92,6 +94,61 @@
             $error_stmnt .= "</p>";
         }
     }
+    else if(isset($_POST['id'])) {
+        //agent log in
+        $agent_id = $_POST['id'];
+        if(substr($agent_id,0,6) != "AGENT_" && !preg_match("/^[0-9]*$/", substr($agent_id, 6)) && !$error) {
+            $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
+            $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
+            $error_stmnt .= "Please enter a valid ID.";
+            $error_stmnt .= "</p>";
+            $error = True;
+            $error_num = 1;
+        }
+
+        $agent_pin= $_POST['pin'];
+        if(strlen($agent_pin) !=4 && !preg_match(substr("/^[0-9]*$/", $agent_pin)) && !$error) {
+            $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
+            $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
+            $error_stmnt .= "PIN must be 4 Digits.";
+            $error_stmnt .= "</p>";
+            $error = True;
+            $error_num = 2;
+        }
+
+        if(!$error) {
+            //read from database
+            $arr['agent_id'] = $agent_id;
+
+            $query = "select * from agent where agent_id = :agent_id limit 1";
+            $stmnt = $con->prepare($query);
+            $check = $stmnt->execute($arr);
+
+            if($check) {
+                $data = $stmnt->fetchAll(PDO::FETCH_OBJ);  //FETCH_ASSOC for array
+
+                if(is_array($data) && count($data) > 0) {
+                    $data = $data[0];
+                    if($agent_pin == $data->agent_password) {
+                        $_SESSION['agent_id'] = $data->agent_id;
+                        $_SESSION['agent_name'] = $data->agent_name;
+                        $_SESSION['agent_contact'] = $data->agent_contact;
+                        $_SESSION['agent_city'] = $data->agent_city;
+                        $_SESSION['agent_state'] = $data->agent_state;
+                        $_SESSION['agent_country'] = $data->agent_country;
+                        $_SESSION['agent_pin_code'] = $data->agent_pin_code;
+
+                        header('Location: agentPage.php?agent_query=orders');
+                        die;
+                    }
+                }
+                $error_stmnt .= "<p style='color:#F78812; font-size:14px'>";
+                $error_stmnt .= "<i class='fa fa-exclamation-circle'></i> ";
+                $error_stmnt .= "Invalid ID or PIN.";
+                $error_stmnt .= "</p>";
+            }
+        }
+    }
 ?>
 
 <!DOCTYPE html>
@@ -124,7 +181,8 @@
                 /* background-color: #ECEFF1; */
                 /* background: rgba(24,24,24, 0.8); */
                 /* background-color: #181818; */
-                background: url(images/large.jpg) no-repeat;
+                /* background: url(images/large.jpg) no-repeat; */
+                background: url(images/del_agent.jpg) no-repeat;
                 background-size: center;
                 font-family: 'Montserrat', sans-serif;
             }
@@ -190,6 +248,7 @@
                 /* background-color: #195aaf; */
                 background: #1b9bff;
                 border: 1px solid #1b9bff;
+                color: white;
                 transition: 0.3s;
             }
             .form .forgot-pass {
@@ -228,6 +287,60 @@
                 transition: 0.3s;
             }
         </style>
+        <?php
+            if(isset($_GET['agentLogin']) && $_GET['agentLogin'] == 'true') {
+        ?>
+        <style>
+            body {
+                background: url(images/del_agent.jpg) no-repeat;
+                background-size: center;
+                font-family: 'Montserrat', sans-serif;
+            }
+            #box {
+                height: 500px;
+                margin-top: 200px;
+            }
+            .form {
+                background: whitesmoke;
+            }
+            .form h2 {
+                color: black;
+            }
+            .submit-btn {
+                background: none;
+                border: 2px solid #1b9bff;
+                color: #1b9bff;
+            }
+            .submit-btn:hover {
+                border: 2px solid #1b9bff;
+            }
+        </style>
+        <div id="box">
+            <form method="post" class="form">
+                <h2>Music<span style="color:#1b9bff;">STORE</span>&trade;<sub style="font-size: 18px;">Agent</sub></h2>
+                <?php
+                        if(isset($error_stmnt) && $error_num == 0 && $error_stmnt != "") {
+                            echo $error_stmnt;
+                        }
+                ?>
+                <input type="text" name="id" class="form-control" placeholder="Agent ID"  value="<?=$email?>" required="required">
+                <?php
+                        if(isset($error_stmnt) && $error_num == 1 && $error_stmnt != "") {
+                            echo $error_stmnt;
+                        }
+                ?>
+                <input type="password" name="pin" class="form-control" placeholder="PIN" required="required">
+                <?php
+                        if(isset($error_stmnt) && $error_num == 2 && $error_stmnt != "") {
+                            echo $error_stmnt;
+                        }
+                ?>
+                <input type="submit" class="submit-btn" value="Sign in">
+            </form>
+        </div>
+        <?php
+            } else {
+        ?>
         <div id="box">
             <form method="post" class="form">
                 <h2>Music<span style="color:#1b9bff;">STORE</span>&trade;</h2>
@@ -254,5 +367,8 @@
                 <a href="signup.php" class="sign-up">Create new account</a>
             </form>
         </div>
+        <?php
+            }
+        ?>
     </body>
 </html>

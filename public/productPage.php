@@ -4,6 +4,7 @@
 
     $user_data = check_login($con);
 
+    $is_agent_available = False;
     
     $user_name = "";
     if(isset($_SESSION['user_name'])) {
@@ -46,10 +47,43 @@
             $main_inst_data = $stmnt_main->fetchAll(PDO::FETCH_OBJ);  //FETCH_ASSOC for array
             $main_inst_data = $main_inst_data[0];
         }        
+
+        if(isset($_SESSION['user_id'])) {
+            $arr_check_agent['c_id'] = $_SESSION['user_id'];
+            $query_agent = "select * from agent where agent_state in (select state from address where c_id=:c_id);";
+            $stmnt_agent = $con->prepare($query_agent);
+            $check_agent = $stmnt_agent->execute($arr_check_agent);
+
+            if($check_agent) {
+                $agent_data = $stmnt_agent->fetchAll(PDO::FETCH_OBJ); //FETCH_ASSOC for array
+
+                if(is_array($agent_data) && count($agent_data) > 0) {
+                    $is_agent_available = True;
+                }
+            }
+        }
+        
+    }
+
+    // buy now 
+    if(isset($_POST['buy_now']) && $_POST['buy_now'] == 'true') {
+        
+        if(isset($_SESSION['user_id'])) {
+            
+            $_SESSION['checkout_inst_id'] = $_POST['inst_id'];
+            $_SESSION['checkout_total_price'] = $_POST['inst_price'];
+            $_SESSION['checkout_seller_id'] = $_POST['inst_seller'];
+
+            header('Location: checkout.php?select_address=true');
+            die;
+        } else {
+            header('Location: login.php');
+            die;
+        }
     }
 
     // add to cart 
-    if(isset($_POST['inst_id'])) {
+    if(isset($_POST['add_to_cart']) && $_POST['add_to_cart'] == 'true') {
         
         if(isset($_SESSION['user_id'])) {
             
@@ -520,7 +554,7 @@
                             <?php
                                 }
                             ?>
-                            <li><a href="#">Orders</a></li>
+                            <li><a href="useraccount.php?orders=true">Orders</a></li>
                             <li><a href="cart.php">Cart</a></li>
                             <hr>
                             <li><a href="logout.php">Sign out</a></li>
@@ -801,9 +835,10 @@
                             .sold-out {
                                 width: 100%;
                                 padding: 20px;
-                                text-align: center;
+                                text-align: left;
                             }
-                            .sold-out h1 {
+                            .sold-out h3 {
+                                width:  100%;
                                 color: red;
                             }
                             .inst-details-buy-cart {
@@ -921,19 +956,28 @@
                                 if($main_inst_data->quantity == 0) {
                             ?>
                             <div class="sold-out">
-                                <h1>SOLD OUT!</h1>
+                                <h3>Sold out!</h3>
+                            </div>
+                            <?php
+                                } else if($user_name != "" && !$is_agent_available) {
+                            ?>
+                            <div class="sold-out">
+                                <h3>This instrument cannot be delivered to your address!</h3>
                             </div>
                             <?php
                                 } else {
                             ?>
                             <div class="buy-cart-btns">
-                                <form action="" method="">
+                                <form action="productPage.php" method="post">
                                     <input type="text" class="hidden-input" name="inst_id" value="<?=$main_inst_data->inst_id?>">
-                                    <input type="text" class="hidden-input" name="category" value="<?=$main_inst_data->category?>">
+                                    <input type="text" class="hidden-input" name="inst_price" value="<?=$main_inst_data->price?>">
+                                    <input type="text" class="hidden-input" name="inst_seller" value="<?=$main_inst_data->s_id?>">
+                                    <input type="text" class="hidden-input" name="buy_now" value="true">
                                     <input type="submit" class="buy-btn" value="Buy now">
                                 </form>
                                 <form action="productPage.php" method="post">
                                     <input type="text" class="hidden-input" name="inst_id" value="<?=$main_inst_data->inst_id?>">
+                                    <input type="text" class="hidden-input" name="add_to_cart" value="true">
                                     <input type="submit" class="cart-btn" value="Add to cart">
                                 </form>
                             </div>
@@ -1004,7 +1048,7 @@
                             <h1>Find your next instrument here.</h1>
                             <form method="get" action="catalogue.php">
                                 <input type="search" name="search" class="form-control" placeholder="Search your favourites">
-                                <input type="submit" value="Search" class="sbmt-btn" title="Click to buy">
+                                <input type="submit" value="Search" class="sbmt-btn">
                             </form>
                         </div>
                     </div>
@@ -1042,8 +1086,15 @@
                                 <?php
                                     }
                                 ?>
-                                <li><a href="#">Agent</a></li>
-                                <li><a href="#">Admin</a></li>
+                                <?php
+                                    if(!isset($_SESSION['user_id'])) {
+                                ?>
+                                    <li><a href="login.php?agentLogin=true">Agent</a></li>
+                                <?php
+                                    }
+                                ?>
+                                
+
                             </ul>
                         </div>
                         <div class="footer-col">

@@ -358,7 +358,7 @@
             .top-menu ul li {
                 /* padding: 20px 30px; */
                 /* margin: 8px; */
-                width: 25%;
+                width: 33%;
             }
             .top-menu ul li a {
                 text-decoration: none;
@@ -627,7 +627,7 @@
                 <a class="logo" href="index.php">Music<span style="color:#1b9bff;">STORE</span>&trade;<sub> Seller</sub></a>
                 <ul class="nav-list">
                     <li><a class="active" href="index.php">Home</a></li>
-                    <li><a class="active" href="#">Orders</a></li>
+                    <li><a class="active" href="useraccount.php?orders=true">Orders</a></li>
                     <li><a class="active" href="cart.php">Cart</a></li>
                     <li><a class="active" href="useraccount.php"><?=$_SESSION['user_name']?></a></li>
                     <li><a class="active" href="selleraccount.php"><?=$_SESSION['company_name']?></a></li>
@@ -671,20 +671,12 @@
                                     <ul>
                                         <li><a href="selleraccount.php">Account</a></li>
                                         <li><a class="active" href="instruments.php">Instruments</a></li>
-                                        <li><a href="#">Sales</a></li>
-                                        <li><a href="#">Reviews</a></li>
+                                        <li><a href="selleraccount.php?sales=true">Sales</a></li>
                                     </ul>
                                 </div>
                             </div>
                             <div class="inst-up-rem">
                                 <a href="uploadInstrument.php" class="upload">Upload Instrument</a>
-                                <?php
-                                    if(count($inst_data) == 0) {
-                                ?>
-                                <p>No instruments available.</p>
-                                <<?php
-                                    }
-                                ?>
                             </div>
                             <p class="inst-count">Instrument count: <?=count($inst_data)?></p>
                             
@@ -758,9 +750,8 @@
                                 <li><a href="selleraccount.php">Seller</a></li>
                             <?php
                                 }
-                            ?>
-                            <li><a href="#">Agent</a></li>
-                            <li><a href="#">Admin</a></li>
+                            ?>            
+
                         </ul>
                     </div>
                     <div class="footer-col">

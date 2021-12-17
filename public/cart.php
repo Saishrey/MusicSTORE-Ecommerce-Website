@@ -4,20 +4,11 @@
 
     //fetch instruments from cart
 
-    $arr['user_id'] = $_SESSION['user_id'];
-    $query = "select * from instrument where inst_id in (select instrument_id from cart where customer_id = :user_id);";
-    $stmnt = $con->prepare($query);
-    $check = $stmnt->execute($arr);
-
-    if($check) {
-        $inst_data = $stmnt->fetchAll(PDO::FETCH_OBJ);  //FETCH_ASSOC for array
-    }
-
-    // add to cart 
-    if(isset($_POST['inst_id'])) {
+    // remove from cart 
+    if(isset($_GET['remove_inst_id'])) {
             
         $array['cust_id'] = $_SESSION['user_id'];
-        $array['i_id'] = $_POST['inst_id'];
+        $array['i_id'] = $_GET['remove_inst_id'];
 
         $query = "delete from cart where customer_id=:cust_id and instrument_id=:i_id;";
         $stmnt = $con->prepare($query);
@@ -33,6 +24,38 @@
                 alert('Error deleting instrument from cart.');
                 window.location.replace('cart.php');
                 </script>";
+        }
+    }
+    else if(isset($_GET['proceed_to_buy']) && $_GET['proceed_to_buy'] == 'true') {
+        if(isset($_SESSION['checkout_inst_id'])) {
+            unset($_SESSION['checkout_inst_id']);
+        }
+
+        $arr['user_id'] = $_SESSION['user_id'];
+        $query = "select * from instrument where inst_id in (select instrument_id from cart where customer_id = :user_id);";
+        $stmnt = $con->prepare($query);
+        $check = $stmnt->execute($arr);
+
+        if($check) {
+            $inst_data = $stmnt->fetchAll(PDO::FETCH_OBJ);  //FETCH_ASSOC for array
+            $total_price = 0;
+            for($i = 0; $i < count($inst_data); $i++) {
+                $total_price += $inst_data[$i]->price;
+            }
+            $_SESSION['checkout_total_price'] = $total_price;
+
+            header('Location: checkout.php?select_address=true');
+            die;
+        }
+    }
+    else {
+        $arr['user_id'] = $_SESSION['user_id'];
+        $query = "select * from instrument where inst_id in (select instrument_id from cart where customer_id = :user_id);";
+        $stmnt = $con->prepare($query);
+        $check = $stmnt->execute($arr);
+
+        if($check) {
+            $inst_data = $stmnt->fetchAll(PDO::FETCH_OBJ);  //FETCH_ASSOC for array
         }
     }
 ?>
@@ -592,7 +615,7 @@
                 <a class="logo" href="index.php">Music<span style="color:#1b9bff;">STORE</span>&trade;</a>
                 <ul class="nav-list">
                     <li><a class="active" href="index.php">Home</a></li>
-                    <li><a class="active" href="#">Orders</a></li>
+                    <li><a class="active" href="useraccount.php?orders=true">Orders</a></li>
                     <li><a class="active" href="cart.php">Cart</a></li>
                     <li><a class="active" href="useraccount.php"><?=$_SESSION['user_name']?></a></li>
                     <?php 
@@ -674,12 +697,14 @@
                         }
                         .can-order a {
                             padding: 12px 30px;
-                            color: black;
+                            
                             font-size: 20px;
-                            border: 1px solid black;
+                            border: none;
+                            /* border: 1px solid black; */
                             outline: none;
+                            background: #F3950D;
                             border-radius: 6px;
-                            background: none;
+                            color: white;
                             font-family: 'Montserrat', sans-serif;
                             text-transform: uppercase;
                             width: 100%;
@@ -695,10 +720,8 @@
                         .place-order .can-order a:hover {
                             cursor: pointer;
                             color: white;
-                            /* background-color: #195aaf; */
-                            background: #1b9bff;
-                            border: 1px solid #1b9bff;
-                            transition: 0.3s;
+                            background: rgb(187,103,54);
+                            transition: 250ms linear;
                         }
                         .product-item {
                             display: flex;
@@ -716,13 +739,13 @@
                         }
                         .buy-cart-inst-img-cont  {
                             padding: 30px;
-                            width: 40%;
+                            width: 30%;
                             /* min-width: 470px; */
                         }
                         .main-square-img {
                             /* margin: 10px; */
                             width: 100%;
-                            height: 300px;
+                            height: 250px;
                             text-align: center;
                             overflow: hidden;
                             border: 1px solid #1b9bff;
@@ -741,7 +764,7 @@
                             color: #4E9F3D;
                         }
                         .inst-details-buy-cart {
-                            width: 60%;
+                            width: 70%;
                             padding: 30px;
                         }
                         .inst-details-buy-cart h1 {
@@ -749,6 +772,13 @@
                             font-weight: 300;
                             font-size: 38px;
                             padding-bottom: 10px;
+                        }
+                        .inst-details-buy-cart h1 a {
+                            color: black;
+                        }
+                        .inst-details-buy-cart h1 a:hover {
+                            text-decoration: underline;
+                            color: purple;
                         }
                         .sold-by {
                             width: 100%;
@@ -777,70 +807,38 @@
                         }
                         .buy-cart-btns {
                             display: flex;
-                            flex-direction: row;
+                            flex-direction: column;
                             width: 100%;
                             padding: 40px 0;
                         }
                         .buy-cart-btns form {
-                            width: 50%;
+                            width: 100%;
                             padding: 0;
                             text-align: center;
-                        }
-                        .sold-out {
-                            width: 80%;
-                            text-decoration: none;
-                            padding: 15px;
-                            background: #F90716;
-                            border: none;
-                            font-family: 'Montserrat', sans-serif;
-                            color: white;
-                            font-size: 18px;
-                            text-align:center;
-                            margin: auto;
-                            /* margin-top: 25px; */
-                            border-radius: 3px;
-                        }
-                        .sold-out:hover {
-                            cursor: pointer;
-                            background: #B85252;
-                            transition: 250ms linear;
-                        }
-                        .buy-btn {
-                            width: 80%;
-                            text-decoration: none;
-                            padding: 15px;
-                            background: #F3950D;
-                            border: none;
-                            font-family: 'Montserrat', sans-serif;
-                            color: white;
-                            font-size: 18px;
-                            text-align:center;
-                            margin: auto;
-                            /* margin-top: 25px; */
-                            border-radius: 3px;
-                        }
-                        .buy-btn:hover {
-                            cursor: pointer;
-                            background: rgb(187,103,54);
-                            transition: 250ms linear;
                         }
                         .cart-btn {
                             text-decoration: none;
                             width: 80%;
                             padding: 15px;
-                            background: #3DB026;
+                            background: none;
                             border: none;
                             font-family: 'Montserrat', sans-serif;
-                            color: white;
+                            color: purple;
                             font-size: 18px;
                             text-align:center;
                             margin: auto;
                             /* margin-top: 25px; */
                             border-radius: 3px;
                         }
+                        .sold-out {
+                            text-align: center;
+                            padding: 20px;
+                            font-size: 22px;
+                            color: red;
+                        }
                         .cart-btn:hover {
                             cursor: pointer;
-                            background: #369b22;
+                            color: #1b9bff;
                             transition: 250ms linear;
                         }
                     </style>
@@ -850,8 +848,8 @@
                                 <div class="ul-div">
                                     <ul>
                                         <li><a href="useraccount.php">My Account</a></li>
-                                        <li><a href="#">Orders</a></li>
-                                        <li><a class="active" href="#">Cart</a></li>
+                                        <li><a href="useraccount.php?orders=true">Orders</a></li>
+                                        <li><a class="active" href="cart.php">Cart</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -872,14 +870,14 @@
                                                 $flag++;
                                             } 
                                 ?>
-                                <div class="product-item">
+                                <div class="product-item" <?php if($inst_data[$i]->quantity == 0) { ?> style="background: #D3E0EA;" <?php } ?>>
                                     <div class="buy-cart-inst-img-cont">
                                         <div class="main-square-img">
                                             <img src="../private/uploads/<?=$inst_data[$i]->inst_img?>" alt="Image">
                                         </div>
                                     </div>
-                                    <div class="inst-details-buy-cart">
-                                        <h1 style="text-transform: capitalize;"><?=$inst_data[$i]->inst_name?></h1>
+                                    <div class="inst-details-buy-cart" <?php if($inst_data[$i]->quantity == 0) { ?> style="color: grey;" <?php } ?>>
+                                        <h1 style="text-transform: capitalize;"><a href="productPage.php?inst_id=<?=$inst_data[$i]->inst_id?>&category=<?=$inst_data[$i]->category?>" target="_blank"><?=$inst_data[$i]->inst_name?></a></h1>
                                         <h3 class="sold-by">Sold by: <?=$inst_data[$i]->brand_name?></h3>
                                         <h2 class="og-price">Price: <span style="color: red;">&#8377; <?=$inst_data[$i]->price?></h2>
                                         <?php
@@ -895,30 +893,11 @@
                                             <?php
                                                 if($inst_data[$i]->quantity == 0) {
                                             ?>
-                                            <form action="productPage.php" method="get">
-                                                <input type="text" class="hidden-input" name="inst_id" value="<?=$inst_data[$i]->inst_id?>">
-                                                <input type="text" class="hidden-input" name="category" value="<?=$inst_data[$i]->category?>">
-                                                <input type="submit" class="sold-out" value="Sold out">
-                                            </form>
-                                            <form action="cart.php" method="post">
-                                                <input type="text" class="hidden-input" name="inst_id" value="<?=$inst_data[$i]->inst_id?>">
-                                                <input type="submit" class="cart-btn" value="Remove from cart">
-                                            </form>
-                                            <?php
-                                                } else {
-                                            ?>
-                                            <form action="productPage.php" method="">
-                                                <input type="text" class="hidden-input" name="inst_id" value="<?=$inst_data[$i]->inst_id?>">
-                                                <input type="text" class="hidden-input" name="category" value="<?=$inst_data[$i]->category?>">
-                                                <input type="submit" class="buy-btn" value="Buy now">
-                                            </form>
-                                            <form action="cart.php" method="post">
-                                                <input type="text" class="hidden-input" name="inst_id" value="<?=$inst_data[$i]->inst_id?>">
-                                                <input type="submit" class="cart-btn" value="Remove from cart">
-                                            </form>
+                                            <p class="sold-out">Sold out!</p>
                                             <?php
                                                 }
                                             ?>
+                                            <a href="cart.php?remove_inst_id=<?=$inst_data[$i]->inst_id?>" class="cart-btn"><i class="fa fa-trash"></i> Remove from cart</a>
                                         </div>
                                     </div>   
                                 </div>
@@ -927,13 +906,13 @@
                                         if($flag > 0) {
                                 ?>
                                 <div class="place-order">
-                                    <p class="no-order" title="Remove instruments from cart which are sold out.">Place order</p>
+                                    <p class="no-order" title="Remove instruments from cart which are sold out.">Proceed to buy</p>
                                 </div>
                                 <?php 
                                         } else {
                                 ?>
                                 <div class="place-order">
-                                    <p class="can-order"><a href="">Place order</a></p>
+                                    <p class="can-order"><a href="cart.php?proceed_to_buy=true">Proceed to buy</a></p>
                                 </div>
                                 <?php 
                                         }
@@ -965,9 +944,7 @@
                                 <li><a href="selleraccount.php">Seller</a></li>
                             <?php
                                 }
-                            ?>
-                            <li><a href="#">Agent</a></li>
-                            <li><a href="#">Admin</a></li>
+                            ?>                    
                         </ul>
                     </div>
                     <div class="footer-col">

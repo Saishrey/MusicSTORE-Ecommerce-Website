@@ -85,6 +85,7 @@
             $_SESSION['is_seller'] = 1;
 
             $arr['seller_id'] = 'SELLER'.get_random_string(20);
+            $_SESSION['seller_id'] = $arr['seller_id'];
             $arr['company_name'] = $company_name;
             $arr['seller_email'] = $_SESSION['email'];
             $arr['seller_contact'] = $contact;
@@ -556,7 +557,6 @@
                                 echo $error_stmnt;
                             }
                         ?>
-                        <p style='color:blue; font-size:14px'>Fill only those fields which you want to update.</p>
                         <input type="text" class="form-control" name="address" placeholder="Address" maxlength="250" required="required">
                         <?php
                             if(isset($error_stmnt) && $error_num == 2 && $error_stmnt != "") {
@@ -607,9 +607,8 @@
                                 <?php
                                     }
                                 ?>
-                                <li><a href="sellerGreeting.php">Seller</a></li>
-                                <li><a href="#">Agent</a></li>
-                                <li><a href="#">Admin</a></li>
+                                <li><a href="sellerGreeting.php">Seller</a></li>                               
+
                             </ul>
                         </div>
                         <div class="footer-col">

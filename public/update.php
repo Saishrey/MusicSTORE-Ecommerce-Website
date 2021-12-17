@@ -566,8 +566,7 @@
                             <?php
                                 }
                             ?>
-                            <li><a href="#">Agent</a></li>
-                            <li><a href="#">Admin</a></li>
+
                         </ul>
                     </div>
                     <div class="footer-col">

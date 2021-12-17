@@ -482,8 +482,14 @@
                                     }
                                 ?>
                                 <li><a href="sellerGreeting.php">Seller</a></li>
-                                <li><a href="#">Agent</a></li>
-                                <li><a href="#">Admin</a></li>
+                                <?php
+                                    if(!isset($_SESSION['user_id'])) {
+                                ?>
+                                    <li><a href="login.php?agentLogin=true">Agent</a></li>
+                                <?php
+                                    }
+                                ?>
+            
                             </ul>
                         </div>
                         <div class="footer-col">

@@ -470,8 +470,8 @@
                             <?php
                                 }
                             ?>
-                            <li><a href="#">Orders</a></li>
-                            <li><a href="#">Cart</a></li>
+                            <li><a href="useraccount.php?orders=true">Orders</a></li>
+                            <li><a href="cart.php">Cart</a></li>
                             <hr>
                             <li><a href="logout.php">Sign out</a></li>
                         </ul>
@@ -767,8 +767,14 @@
                                 <?php
                                     }
                                 ?>
-                                <li><a href="#">Agent</a></li>
-                                <li><a href="#">Admin</a></li>
+                                <?php
+                                    if(!isset($_SESSION['user_id'])) {
+                                ?>
+                                    <li><a href="login.php?agentLogin=true">Agent</a></li>
+                                <?php
+                                    }
+                                ?>
+                                
                             </ul>
                         </div>
                         <div class="footer-col">

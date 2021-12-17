@@ -446,7 +446,7 @@
             .top-menu ul li {
                 /* padding: 20px 30px; */
                 /* margin: 8px; */
-                width: 25%;
+                width: 33%;
             }
             .top-menu ul li a {
                 text-decoration: none;
@@ -722,7 +722,7 @@
                                         <li><a href="selleraccount.php">Account</a></li>
                                         <li><a class="active" href="instruments.php">Instruments</a></li>
                                         <li><a href="#">Sales</a></li>
-                                        <li><a href="#">Reviews</a></li>
+            
                                     </ul>
                                 </div>
                             </div>
@@ -752,7 +752,7 @@
                                     </div>
                                     <div class="item">
                                         <label for="price">Quantity:</label>
-                                        <input type="number" class="form-control" id="price" name="quantity" placeholder="Quantity" min="1" max="10" required="required">
+                                        <input type="number" class="form-control" id="price" name="quantity" placeholder="Quantity" min="1" max="100" required="required">
                                     </div>
                                     <div class="item">
                                         <label for="category">Category:</label>
@@ -794,8 +794,7 @@
                             <?php
                                 }
                             ?>
-                            <li><a href="#">Agent</a></li>
-                            <li><a href="#">Admin</a></li>
+
                         </ul>
                     </div>
                     <div class="footer-col">

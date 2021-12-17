@@ -86,7 +86,7 @@
                 /* background-color: #ECEFF1; */
                 /* background: rgba(24,24,24, 0.8); */
                 /* background-color: #181818; */
-                background: url(images/large.jpg) no-repeat;
+                background: url(images/del_agent.jpg) no-repeat;
                 background-size: center;
                 font-family: 'Montserrat', sans-serif;
             }
@@ -96,7 +96,7 @@
                 border: none;
                 height: 600px;
                 margin: auto;
-                margin-top: 250px;
+                margin-top: 200px;
                 /* box-shadow: 5px 5px 10px gray; */
                 border-radius: 6px;
             }

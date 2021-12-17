@@ -40,7 +40,7 @@
  
                     if(!$mail_status) {
                         echo "<script>
-                            alert('Register Failed, Invalid Email');
+                            alert('Error sending OTP, could be an Invalid Email.');
                             </script>";
                     }
                     else {
@@ -87,7 +87,7 @@
                 /* background-color: #ECEFF1; */
                 /* background: rgba(24,24,24, 0.8); */
                 /* background-color: #181818; */
-                background: url(images/large.jpg) no-repeat;
+                background: url(images/del_agent.jpg) no-repeat;
                 background-size: center;
                 font-family: 'Montserrat', sans-serif;
             }

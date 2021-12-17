@@ -1,6 +1,19 @@
 <?php 
 
     require "../private/autoload.php";
+
+    $flag = 0;
+    if(isset($_GET['sales']) && $_GET['sales'] == 'true') {
+        $arr['s_id'] = $_SESSION['seller_id'];
+        $query_orders = "select * from ordered_instrument inner join orders on orders.order_id = ordered_instrument.o_id where ordered_instrument.s_id =:s_id order by order_date desc;";
+        $stmnt_orders= $con->prepare($query_orders);
+        $check_orders = $stmnt_orders->execute($arr);
+
+        if($check_orders) {
+            $orders_array = $stmnt_orders->fetchAll(PDO::FETCH_OBJ);  //FETCH_ASSOC for array
+        }
+        $flag = 1;
+    }
 ?>
 
 <!DOCTYPE html>
@@ -347,7 +360,7 @@
             .top-menu ul li {
                 /* padding: 20px 30px; */
                 /* margin: 8px; */
-                width: 25%;
+                width: 33%;
             }
             .top-menu ul li a {
                 text-decoration: none;
@@ -620,7 +633,7 @@
                 <a class="logo" href="index.php">Music<span style="color:#1b9bff;">STORE</span>&trade;<sub> Seller</sub></a>
                 <ul class="nav-list">
                     <li><a class="active" href="index.php">Home</a></li>
-                    <li><a class="active" href="#">Orders</a></li>
+                    <li><a class="active" href="useraccount.php?orders=true">Orders</a></li>
                     <li><a class="active" href="cart.php">Cart</a></li>
                     <li><a class="active" href="useraccount.php"><?=$_SESSION['user_name']?></a></li>
                     <li><a class="active" href="selleraccount.php"><?=$_SESSION['company_name']?></a></li>
@@ -657,6 +670,10 @@
                             </div>
                         </div>
                     </div>
+
+                    <?php
+                        if($flag == 0) {
+                    ?>
                     <div class="main-body">
                         <div class="data">
                             <div class="top-menu">
@@ -664,8 +681,7 @@
                                     <ul>
                                         <li><a class="active" href="selleraccount.php">Account</a></li>
                                         <li><a href="instruments.php">Instruments</a></li>
-                                        <li><a href="#">Sales</a></li>
-                                        <li><a href="#">Reviews</a></li>
+                                        <li><a href="selleraccount.php?sales=true">Sales</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -692,13 +708,100 @@
                                     <label for="pincode">PIN Code:</label>
                                     <input type="text" name="seller_pin_code" id="pincode" class="form-control" placeholder="PIN Code" value="<?=$_SESSION['seller_pin_code']?>" maxlength="6" title="Pin code">
                                 </div>
-                                
-                                <input type="submit" class="submit-btn" value="Update" name="sellerupdate">
                                 <hr>
-                                <a href="#" class="deactivate">Deactivate Account</a>
+                                <input type="submit" class="submit-btn" value="Update" name="sellerupdate">
+                                <!-- <hr> -->
+                                <!-- <a href="#" class="deactivate">Deactivate Account</a> -->
                             </form>
                         </div>
                     </div>
+                    <?php
+                        } else if($flag == 1) {
+                    ?>
+                    <div class="main-body">
+                        <div class="data">
+                            <div class="top-menu">
+                                <div class="ul-div">
+                                    <ul>
+                                        <li><a href="selleraccount.php">Account</a></li>
+                                        <li><a href="instruments.php">Instruments</a></li>
+                                        <li><a class="active" href="selleraccount.php?sales=true">Sales</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <style>
+                                .orders {
+                                    padding: 40px 20px;
+                                }
+                                .orders-table-container {
+                                    width: 90%;
+                                    margin: 20px auto;
+                                }
+                                .orders-table-container table {
+                                    width: 100%;
+                                }
+                                .orders-table-container table th {
+                                    border: 1px solid grey;
+                                    text-align: center;
+                                    padding: 5px;
+                                    background: #88E0EF;
+                                    text-transform: uppercase;
+                                    color: #161E54;
+                                }
+                                .orders-table-container table tr,td {
+                                    border: 1px solid grey;
+                                    text-align: center;
+                                    background: white;
+                                }
+                                .orders-table-container table td,th {
+                                    width: 20%;
+                                }
+                            </style>
+                        <div class="orders">
+                            <?php
+                                if(count($orders_array) > 0) {
+                            ?>
+                            <div class="orders-table-container">
+                                <table>
+                                    <tr>
+                                        <th>Sr. No.</th>
+                                        <th>Order ID</th>
+                                        <th>Instrument ID</th>
+                                        <th>Instrument Name</th>
+                                        <th>Category</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Order date</th>
+                                        <th>Payment Method</th>
+                                    </tr>
+                                <?php
+                                    for($i = 0; $i < count($orders_array); $i++) {
+                                ?>
+                                    <tr>
+                                        <td><?=$i+1?></td>
+                                        <td><?=$orders_array[$i]->o_id?></td>
+                                        <td><?=$orders_array[$i]->i_id?></td>
+                                        <td><?=$orders_array[$i]->i_name?></td>
+                                        <td><?=$orders_array[$i]->i_category?></td>
+                                        <td><?=$orders_array[$i]->i_price?></td>
+                                        <td><?=$orders_array[$i]->i_quantity?></td>
+                                        <td><?=$orders_array[$i]->order_date?></td>
+                                        <td><?=$orders_array[$i]->payment_method?></td>
+                                    </tr>
+                                <?php
+                                    }
+                                ?>
+                                </table>
+                            </div>
+                            <?php
+                                }
+                            ?>
+                        </div>
+                        </div>
+                    </div>
+                    <?php
+                        }
+                    ?>
                 </div>
         </main>
         <footer class="footer">
@@ -719,8 +822,7 @@
                             <?php
                                 }
                             ?>
-                            <li><a href="#">Agent</a></li>
-                            <li><a href="#">Admin</a></li>
+                    
                         </ul>
                     </div>
                     <div class="footer-col">

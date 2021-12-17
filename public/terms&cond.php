@@ -29,7 +29,8 @@
                 /* background: rgba(24,24,24, 0.8); */
                 /* background-color: #181818; */
                 /* background: url(images/bg_main.png) no-repeat; */
-                /* background-size: cover; */
+                /* background: url(images/del_agent.jpg) no-repeat; */
+                background-size: cover;
                 background: rgb(24,24,24);
                 font-family: 'Montserrat', sans-serif;
             }
