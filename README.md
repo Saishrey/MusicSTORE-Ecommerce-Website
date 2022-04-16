@@ -41,3 +41,4 @@ More details refer to this youtube video with clear explanation
 https://youtu.be/-1SJPDL-9o8
 
 <img src="ss/homepage1.png">
+<img src="ss/homepage2.png">
